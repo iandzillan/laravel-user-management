@@ -63,7 +63,7 @@ class MenuController extends Controller
     {
         return response()->json([
             'success' => true,
-            'menu'    => $menu
+            'data'    => $menu
         ]);
     }
 
@@ -95,7 +95,6 @@ class MenuController extends Controller
     {
         $menu->delete();
 
-        // return
         return response()->json([
             'success' => true,
             'data'    => $menu

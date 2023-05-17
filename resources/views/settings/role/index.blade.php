@@ -101,13 +101,28 @@
                         });
     
                         storeURL = "{{ route('roles.store') }}";
-                        $('#form-user').trigger('reset').attr('action', storeURL).attr('method', 'post');
+                        $('#form-role').trigger('reset').attr('action', storeURL).attr('method', 'post');
                         $('.invalid-feedback').addClass('d-none');
                         $('input').removeClass('is-invalid');
                         $('#store').val('store');
                         $('#cancel').addClass('d-none');
                         $('html,body').animate({scrollTop: $("#table-role").offset().top},'fast');
                         table.draw();
+                    }, error: function(error){
+                        swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'error',
+                            text: 'Something wrong, please kindly check again',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                        $('.invalid-feedback').removeClass('d-block').addClass('d-none');
+                        $('input').removeClass('is-invalid');
+                        $.each(error.responseJSON, function(i, error){
+                            $('#alert-'+i).addClass('d-block').removeClass('d-none').html(error[0]);
+                            $('input[name="'+i+'"]').addClass('is-invalid');
+                        });
                     }
                 });
             });
