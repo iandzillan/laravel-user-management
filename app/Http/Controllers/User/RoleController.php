@@ -1,36 +1,35 @@
 <?php
 
-namespace App\Http\Controllers\Setting;
+namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\Menu;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\DataTables;
 
-class MenuController extends Controller
+class RoleController extends Controller
 {
     public function index(Request $request)
     {
-        $menus = Menu::withCount('subMenus')->latest()->get();
+        $roles = Role::latest()->get();
 
         if ($request->ajax()) {
-            return DataTables::of($menus)
+            return DataTables::of($roles)
                 ->addIndexColumn()
                 ->addColumn('actions', function ($row) {
-                    $btn = '<a class="btn btn-primary btn-sm" id="btn-edit" data-id="' . $row->id . '" title="Edit"><i class="ti ti-edit"></i></a>';
+                    $btn = '<a class="btn btn-info btn-sm" id="btn-edit" data-id="' . $row->id . '" title="Edit"><i class="ti ti-edit"></i></a>';
                     $btn = $btn . '<a class="btn btn-danger btn-sm" id="btn-delete" data-id="' . $row->id . '" title="Delete"><i class="ti ti-trash"></i></a>';
-
                     return $btn;
                 })
                 ->rawColumns(['actions'])
                 ->make(true);
         }
 
-        return view('settings.menu.index', [
-            'title' => 'Menu Master Data',
+        return view('settings.role.index', [
+            'title' => 'Role',
             'name'  => Auth::user()->name
         ]);
     }
@@ -38,67 +37,58 @@ class MenuController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'code'        => 'required|unique:menus|min:4|max:4',
-            'name'        => 'required|unique:menus',
-            'description' => 'required'
+            'name' => 'required|unique:roles'
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $menu = Menu::create([
-            'code'        => $request->code,
-            'name'        => $request->name,
-            'description' => $request->description
+        $role = Role::create([
+            'name' => $request->name
         ]);
 
         return response()->json([
             'success' => true,
-            'data'    => $menu
+            'data'    => $role
         ]);
     }
 
-    public function edit(Menu $menu)
+    public function edit(Role $role)
     {
         return response()->json([
             'success' => true,
-            'menu'    => $menu
+            'data'    => $role
         ]);
     }
 
-    public function update(Request $request, Menu $menu)
+    public function update(Request $request, Role $role)
     {
         $validator = Validator::make($request->all(), [
-            'code'        => ['required', 'min:4', 'max:4', Rule::unique('menus')->ignore($menu->id)],
-            'name'        => ['required', Rule::unique('menus')->ignore($menu->id)],
-            'description' => 'required'
+            'name' => ['required', Rule::unique('roles')->ignore($role->id)]
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $menu->update([
-            'code'        => $request->code,
-            'name'        => $request->name,
-            'description' => $request->description
+        $role->update([
+            'name' => $request->name
         ]);
 
         return response()->json([
             'success' => true,
-            'data'    => $menu
+            'data'    => $role
         ]);
     }
 
-    public function destroy(Menu $menu)
+    public function destroy(Role $role)
     {
-        $menu->delete();
+        $role->delete();
 
-        // return
         return response()->json([
             'success' => true,
-            'data'    => $menu
+            'data'    => $role
         ]);
     }
 }

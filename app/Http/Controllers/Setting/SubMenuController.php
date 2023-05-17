@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Setting;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class MenuGroupController extends Controller
+class SubMenuController extends Controller
 {
     //
 }

@@ -38,6 +38,22 @@
                         <span class="hide-menu">User</span>
                     </a>
                 </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('roles.index') }}" class="sidebar-link" aria-expanded="false">
+                        <span>
+                            <i class="ti ti-user-check"></i>
+                        </span>
+                        <span class="hide-menu">Role</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('menus.index') }}" class="sidebar-link" aria-expanded="false">
+                        <span>
+                            <i class="ti ti-list"></i>
+                        </span>
+                        <span class="hide-menu">Menu</span>
+                    </a>
+                </li>
             </ul>
         </nav>
         {{-- Sidebar Navigation End --}}

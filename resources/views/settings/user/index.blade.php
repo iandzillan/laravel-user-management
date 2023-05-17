@@ -20,10 +20,15 @@
                         <input type="text" name="username" id="username" class="form-control">
                         <div class="invalid-feedback d-none" role="alert" id="alert-username"></div>
                     </div>
-                    <div class="mb-3 col-lg-12 col-md-12">
+                    <div class="mb-3 col-lg-6 col-md-12">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" name="email" id="email" class="form-control">
                         <div class="invalid-feedback d-none" role="alert" id="alert-email"></div>
+                    </div>
+                    <div class="mb-3 col-lg-6 col-md-12">
+                        <label for="role" class="form-label">Role</label>
+                        <select name="role_id" id="role-id" class="form-select" data-placeholder="--Choose--"></select>
+                        <div class="invalid-feedback d-none" role="alert" id="alert-role"></div>
                     </div>
                     <div class="mb-3 col-lg-6 col-md-12">
                         <label for="password" class="form-label">Password</label>
@@ -35,11 +40,9 @@
                         <input type="password" name="password_confirmation" id="password_confirmation" class="form-control">
                         <div class="invalid-feedback d-none" role="alert" id="alert-password_confirmation"></div>
                     </div>
-                    <div class="col-12 d-flex justify-content-end">
-                        <button type="reset" class="btn btn-danger mx-2 d-none" id="cancel">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
-                    </div>
                 </div>
+                <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
+                <button type="reset" class="btn btn-danger d-none" id="cancel">Cancel</button>
             </form>
         </div>
     </div>
@@ -56,6 +59,7 @@
                             <th>Name</th>
                             <th>Username</th>
                             <th>Email</th>
+                            <th>Role</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -80,8 +84,22 @@
                     {data: 'name', name: 'name'},
                     {data: 'username', name: 'username'},
                     {data: 'email', name: 'email'},
+                    {data: 'role', name: 'role'},
                     {data: 'actions', name: 'actions'},
                 ]
+            });
+
+            // form-select
+            $.ajax({
+                url: "{{ route('users.roles') }}",
+                type: 'get',
+                cache: false,
+                success: function(response){
+                    $('#role-id').append('<option selected disabled> -- Choose -- </option>');
+                    $.each(response, function(i, role){
+                        $('#role-id').append('<option value="'+role.id+'">'+role.name+'</option>');
+                    });
+                }
             });
 
             // store user
@@ -181,6 +199,7 @@
                         $('#name').val(response.data.name);
                         $('#username').val(response.data.username);
                         $('#email').val(response.data.email);
+                        $('#role-id option[value="'+response.data.role_id+'"]').attr('selected', 'selected').change();
                         $('#cancel').removeClass('d-none');
                         $('#store').val('edit');
                         $('html,body').animate({scrollTop: $("#form").offset().top},'fast');
@@ -205,6 +224,7 @@
                 $(this).addClass('d-none');
                 $('.invalid-feedback').removeClass('d-block');
                 $('input').removeClass('is-invalid');
+                $('#role-id option:first').prop('selected', true).change();
             });
 
             // delete user
@@ -248,9 +268,6 @@
                                     timer: 2000
                                 });
                                 table.draw();
-                            }, 
-                            error: function(error){
-                                console.log(error.responseJSON.message);
                             }
                         });
                     }

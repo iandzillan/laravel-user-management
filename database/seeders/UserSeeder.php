@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -17,11 +18,13 @@ class UserSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
         $faker->seed(123);
+        $role = Role::pluck('id');
 
         for ($i = 0; $i < 5; $i++) {
             $firstname = $faker->firstName();
             $lastname  = $faker->lastName();
             User::create([
+                'role_id'  => $faker->randomElement($role),
                 'name'     => $firstname . ' ' . $lastname,
                 'email'    => strtolower($firstname) . '@example.com',
                 'username' => strtolower($firstname),

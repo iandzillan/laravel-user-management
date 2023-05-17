@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Setting;
+namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +26,9 @@ class UserController extends Controller
                     $btn = $btn . '<a class="btn btn-danger btn-sm" data-id="' . $row->id . '" title="Delete user" id="btn-delete"><i class="ti ti-trash"></i></a>';
                     return $btn;
                 })
+                ->addColumn('role', function ($row) {
+                    return $row->role->name;
+                })
                 ->rawColumns(['actions'])
                 ->make(true);
         }
@@ -33,6 +37,13 @@ class UserController extends Controller
             'title' => 'Users',
             'name'  => Auth::user()->name
         ]);
+    }
+
+    public function getRoles()
+    {
+        $roles = Role::all();
+
+        return response()->json($roles);
     }
 
     public function store(Request $request)

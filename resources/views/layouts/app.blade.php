@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="{{ asset('assets/icons/tabler-icons.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/dataTables.bootstrap5.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/sweetalert2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/select2-bootstrap-5-theme.min.css') }}">
     <script src="{{ asset('assets/libs/jquery/dist/jquery.min.js') }}"></script>
 </head>
 <body>
@@ -43,11 +45,20 @@
     <script src="{{ asset('assets/libs/jquery/dist/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/libs/jquery/dist/dataTables.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets/js/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ asset('assets/js/select2.min.js') }}"></script>
     <script>
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
+        $(document).ready(function(){
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $('.form-select').select2({
+                theme: "bootstrap-5",
+                width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+                placeholder: $( this ).data( 'placeholder' ),
+            });
         });
     </script>
 </body>
