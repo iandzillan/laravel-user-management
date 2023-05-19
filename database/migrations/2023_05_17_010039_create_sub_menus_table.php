@@ -13,11 +13,9 @@ return new class extends Migration
     {
         Schema::create('sub_menus', function (Blueprint $table) {
             $table->id();
-            $table->char('code', 6)->unique();
+            $table->char('code', 3)->unique();
             $table->unsignedBigInteger('menu_id');
             $table->string('name');
-            $table->string('route');
-            $table->string('name_route');
             $table->string('icon');
             $table->timestamps();
 

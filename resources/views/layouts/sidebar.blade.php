@@ -3,6 +3,10 @@
     <div>
         {{-- Sidebar Logo --}}
         <div class="brand-logo d-flex align-items-center justify-content-between">
+            <div>
+                <i class="ti ti-api-app h1"></i>
+                <span class="h1 align-middle">UPM</span>
+            </div>
             {{-- <a href="#" class="text-nowrap logo-img">
                 <img src="{{ asset('assets/images/logos/dark-logo.svg') }}" alt="UMA" width="180">
             </a> --}}
@@ -49,9 +53,25 @@
                 <li class="sidebar-item">
                     <a href="{{ route('menus.index') }}" class="sidebar-link" aria-expanded="false">
                         <span>
-                            <i class="ti ti-list"></i>
+                            <i class="ti ti-folder"></i>
                         </span>
                         <span class="hide-menu">Menu</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('submenus.index') }}" class="sidebar-link" aria-expanded="false">
+                        <span>
+                            <i class="ti ti-folders"></i>
+                        </span>
+                        <span class="hide-menu">Sub Menu</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('packages.index') }}" class="sidebar-link" aria-expanded="false">
+                        <span>
+                            <i class="ti ti-list-check"></i>
+                        </span>
+                        <span class="hide-menu">Menu Package</span>
                     </a>
                 </li>
             </ul>

@@ -45,7 +45,7 @@ class RoleController extends Controller
         }
 
         $role = Role::create([
-            'name' => $request->name
+            'name' => ucwords($request->name)
         ]);
 
         return response()->json([
@@ -73,7 +73,7 @@ class RoleController extends Controller
         }
 
         $role->update([
-            'name' => $request->name
+            'name' => ucwords($request->name)
         ]);
 
         return response()->json([

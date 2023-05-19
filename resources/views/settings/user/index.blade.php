@@ -85,11 +85,11 @@
                     {data: 'username', name: 'username'},
                     {data: 'email', name: 'email'},
                     {data: 'role', name: 'role'},
-                    {data: 'actions', name: 'actions'},
+                    {data: 'actions', name: 'actions', orderable: false, searchable: false},
                 ]
             });
 
-            // form-select
+            // form-select roles
             $.ajax({
                 url: "{{ route('users.roles') }}",
                 type: 'get',
@@ -145,8 +145,8 @@
                             timer: 2000
                         });
                         let storeURL = "{{ route('users.store') }}";
-                        $('#form-user').trigger('reset');
-                        $('#form-user').attr('action', storeURL).attr('method', 'post');
+                        $('#form-user').trigger('reset').attr('action', storeURL).attr('method', 'post');
+                        $('#role-id option:first').prop('selected', true).change();
                         $('.invalid-feedback').removeClass('d-block').addClass('d-none');
                         $('input').removeClass('is-invalid');
                         $('#store').val('store');
@@ -154,7 +154,6 @@
                         $('html,body').animate({scrollTop: $("#table-user").offset().top},'fast');
                         table.draw();
                     }, error: function(error){
-                        console.log(error.responseJSON.message);
                         swal.fire({
                             toast: true,
                             position: 'top-end',

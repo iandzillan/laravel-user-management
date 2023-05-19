@@ -19,13 +19,16 @@ class MenuController extends Controller
         if ($request->ajax()) {
             return DataTables::of($menus)
                 ->addIndexColumn()
+                ->addColumn('icon', function ($row) {
+                    return '<i class="ti ti-' . $row->icon . '"></i>';
+                })
                 ->addColumn('actions', function ($row) {
                     $btn = '<a class="btn btn-primary btn-sm" id="btn-edit" data-id="' . $row->id . '" title="Edit"><i class="ti ti-edit"></i></a>';
                     $btn = $btn . '<a class="btn btn-danger btn-sm" id="btn-delete" data-id="' . $row->id . '" title="Delete"><i class="ti ti-trash"></i></a>';
 
                     return $btn;
                 })
-                ->rawColumns(['actions'])
+                ->rawColumns(['icon', 'actions'])
                 ->make(true);
         }
 
@@ -38,8 +41,9 @@ class MenuController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'code'        => 'required|unique:menus|min:4|max:4',
+            'code'        => 'required|unique:menus|min:4|max:4|alpha_num',
             'name'        => 'required|unique:menus',
+            'icon'        => 'required',
             'description' => 'required'
         ]);
 
@@ -48,9 +52,10 @@ class MenuController extends Controller
         }
 
         $menu = Menu::create([
-            'code'        => $request->code,
-            'name'        => $request->name,
-            'description' => $request->description
+            'code'        => strtoupper($request->code),
+            'name'        => ucwords($request->name),
+            'icon'        => $request->icon,
+            'description' => ucfirst($request->description)
         ]);
 
         return response()->json([
@@ -70,8 +75,9 @@ class MenuController extends Controller
     public function update(Request $request, Menu $menu)
     {
         $validator = Validator::make($request->all(), [
-            'code'        => ['required', 'min:4', 'max:4', Rule::unique('menus')->ignore($menu->id)],
+            'code'        => ['required', 'min:4', 'max:4', 'alpha_num', Rule::unique('menus')->ignore($menu->id)],
             'name'        => ['required', Rule::unique('menus')->ignore($menu->id)],
+            'icon'        => 'required',
             'description' => 'required'
         ]);
 
@@ -80,9 +86,10 @@ class MenuController extends Controller
         }
 
         $menu->update([
-            'code'        => $request->code,
-            'name'        => $request->name,
-            'description' => $request->description
+            'code'        => strtoupper($request->code),
+            'name'        => ucwords($request->name),
+            'icon'        => $request->icon,
+            'description' => ucfirst($request->description)
         ]);
 
         return response()->json([

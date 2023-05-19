@@ -6,19 +6,19 @@
                     <i class="ti ti-menu-2"></i>
                 </a>
             </li>
-            <li class="nav-item">
+            {{-- <li class="nav-item">
                 <a href="javascript:void(0)" class="nav-link nav-icon-hover">
                     <i class="ti ti-bell-ringing"></i>
                     <div class="notification bg-primary rounded-circle"></div>
                 </a>
-            </li>
+            </li> --}}
         </ul>
 
         <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
             <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
+                <span class="mx-1">{{ $name }}</span>
                 <li class="nav-item dropdown">
                     <a href="javascript:void(0)" class="nav-link nav-icon-hover" id="drop2" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="mx-1">{{ $name }}</span>
                         <img src="{{ asset('assets/images/profile/user-1.jpg') }}" alt="" width="35" height="35" class="rounded-circle">
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">

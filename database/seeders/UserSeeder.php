@@ -26,7 +26,7 @@ class UserSeeder extends Seeder
             User::create([
                 'role_id'  => $faker->randomElement($role),
                 'name'     => $firstname . ' ' . $lastname,
-                'email'    => strtolower($firstname) . '@example.com',
+                'email'    => strtolower($firstname) . '@testing.com',
                 'username' => strtolower($firstname),
                 'password' => Hash::make('password')
             ]);

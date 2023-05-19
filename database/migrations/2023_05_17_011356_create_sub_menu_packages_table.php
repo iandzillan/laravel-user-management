@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('menu_package', function (Blueprint $table) {
+        Schema::create('sub_menu_package', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('menu_id');
+            $table->unsignedBigInteger('sub_menu_id');
             $table->unsignedBigInteger('package_id');
             $table->timestamps();
 
-            $table->foreign('menu_id')->references('id')->on('menus')->onDelete('cascade');
+            $table->foreign('sub_menu_id')->references('id')->on('sub_menus')->onDelete('cascade');
             $table->foreign('package_id')->references('id')->on('packages')->onDelete('cascade');
         });
     }

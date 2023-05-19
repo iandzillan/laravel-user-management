@@ -9,10 +9,10 @@ class Menu extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['code', 'name', 'description'];
+    protected $fillable = ['code', 'name', 'icon', 'description'];
 
     public function subMenus()
     {
-        return $this->hasMany(SubMenu::class);
+        return $this->hasMany(SubMenu::class, 'menu_id');
     }
 }

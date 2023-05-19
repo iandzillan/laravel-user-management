@@ -10,15 +10,26 @@
             <form action="{{ route('menus.store') }}" method="post" id="form-menu">
                 <div class="row d-flex justify-content-center">
                     <input type="hidden" name="id" id="id">
-                    <div class="mb-3 col-lg-6 col-md-12">
+                    <div class="mb-3 col-lg-4 col-md-12">
                         <label for="code" class="form-label">Code Menu</label>
-                        <input type="text" name="code" id="code" class="form-control">
+                        <input type="text" name="code" id="code" class="form-control" placeholder="Example: T001">
                         <div class="invalid-feedback d-none" role="alert" id="alert-code"></div>
                     </div>
-                    <div class="mb-3 col-lg-6 col-md-12">
+                    <div class="mb-3 col-lg-4 col-md-12">
                         <label for="name" class="form-label">Name</label>
                         <input type="text" name="name" id="name" class="form-control">
                         <div class="invalid-feedback d-none" role="alert" id="alert-name"></div>
+                    </div>
+                    <div class="mb-3 col-lg-4 col-md-12">
+                        <label for="icon" class="form-label">Icon</label>
+                        <div class="input-group">
+                            <input type="text" name="icon" id="icon" class="form-control">
+                            <a href="https://tabler-icons.io/" target="_blank" class="btn btn-warning">
+                                <i class="ti ti-brand-codesandbox"></i>
+                            </a>
+                        </div>
+                        <span class="text-small text-warning">*Click the box to see icon references</span>
+                        <div class="invalid-feedback d-none" role="alert" id="alert-icon"></div>
                     </div>
                     <div class="mb-3 col-lg-12 col-md-12">
                         <label for="description" class="form-label">Menu Description</label>
@@ -42,7 +53,9 @@
                             <th>#</th>
                             <th>Code</th>
                             <th>Menu</th>
+                            <th>icon</th>
                             <th>Description</th>
+                            <th>Sub Menu</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -58,15 +71,17 @@
                 processing: true,
                 serverSide: true,
                 initComplete: function (settings, json) {  
-                    $("#data-users").wrap("<div style='overflow:auto; width:100%; position:relative;'></div>");            
+                    $("#data-menu").wrap("<div style='overflow:auto; width:100%; position:relative;'></div>");            
                 },
                 ajax: "{{ route('menus.index') }}",
                 columns: [
                     {data: 'DT_RowIndex', name: 'DT_RowIndex'},
                     {data: 'code', name: 'code'},
                     {data: 'name', name: 'name'},
+                    {data: 'icon', name: 'icon'},
                     {data: 'description', name: 'description'},
-                    {data: 'actions', name: 'actions'},
+                    {data: 'sub_menus_count', name: 'sub_menus_count'},
+                    {data: 'actions', name: 'actions', orderable: false, searchable: false},
                 ]
             });
 
@@ -165,6 +180,7 @@
                         $('#id').val(response.data.id);
                         $('#code').val(response.data.code);
                         $('#name').val(response.data.name);
+                        $('#icon').val(response.data.icon);
                         $('#description').val(response.data.description);
                         $('#cancel').removeClass('d-none');
                         $('#store').val('edit');

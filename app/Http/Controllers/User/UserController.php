@@ -49,6 +49,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'role_id'  => 'required',
             'name'     => 'required',
             'email'    => 'required|email:rfc,dns|unique:users',
             'username' => 'required|unique:users',
@@ -59,12 +60,15 @@ class UserController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'username' => $request->username,
-            'password' => Hash::make($request->password)
-        ]);
+        $role           = Role::where('id', $request->role_id)->first();
+        $user           = new User();
+        $user->name     = ucwords($request->name);
+        $user->email    = $request->email;
+        $user->username = $request->username;
+        $user->password = Hash::make($request->password);
+        $user->role()->associate($role);
+        $user->save();
+
 
         return response()->json([
             'success' => true,
@@ -83,6 +87,7 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $validator = Validator::make($request->all(), [
+            'role_id'  => 'required',
             'name'     => 'required',
             'email'    => ['required', 'email:rfc,dns', Rule::unique('users')->ignore($user->id)],
             'username' => ['required', Rule::unique('users')->ignore($user->id)],
@@ -97,12 +102,13 @@ class UserController extends Controller
             $user->password = Hash::make($request->password);
         }
 
-        $user->update([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'username' => $request->username,
-            'password' => $user->password,
-        ]);
+        $role           = Role::where('id', $request->role_id)->first();
+        $user->name     = ucwords($request->name);
+        $user->email    = $request->email;
+        $user->username = $request->username;
+        $user->password = $user->password;
+        $user->role()->associate($role);
+        $user->save();
 
         return response()->json([
             'success' => true,

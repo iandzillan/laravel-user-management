@@ -16,6 +16,7 @@ class RoleSeeder extends Seeder
     {
 
         $roles = collect([
+            ['name' => 'Super Admin'],
             ['name' => 'Admin'],
             ['name' => 'User'],
         ]);
