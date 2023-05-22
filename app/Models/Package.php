@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Package extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['code', 'name', 'description'];
+
+    public function subMenus()
+    {
+        return $this->belongsToMany(SubMenu::class)->withTimestamps();
+    }
 }

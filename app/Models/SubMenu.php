@@ -15,4 +15,9 @@ class SubMenu extends Model
     {
         return $this->belongsTo(Menu::class);
     }
+
+    public function packages()
+    {
+        return $this->belongsToMany(Package::class)->withTimestamps();
+    }
 }

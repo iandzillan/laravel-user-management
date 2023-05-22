@@ -74,7 +74,11 @@ Route::group(['middleware' => 'auth'], function () {
     // permission
     Route::group(['prefix' => 'packages'], function () {
         Route::get('/', [PackageController::class, 'index'])->name('packages.index');
-        Route::get('/users', [PackageController::class, 'getUsers'])->name('packages.users');
-        Route::get('/users/{user}', [PackageController::class, 'getUser'])->name('packages.user');
+        Route::post('/store', [PackageController::class, 'store'])->name('packages.store');
+        Route::get('/{package}/edit', [PackageController::class, 'edit'])->name('packages.edit');
+        Route::patch('/{package}', [PackageController::class, 'update'])->name('packages.update');
+        Route::delete('/{package}', [PackageController::class, 'destroy'])->name('packages.destroy');
     });
+
+    Route::get('/testing', [PackageController::class, 'testing']);
 });

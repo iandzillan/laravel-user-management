@@ -157,7 +157,7 @@
 
             // edit menu 
             $('body').on('click', '#btn-edit', function(){
-                let id, editURL
+                let id, editURL;
                 id      = $(this).data('id');
                 editURL = "{{ route('menus.edit', ":id") }}";
                 editURL = editURL.replace(':id', id);
