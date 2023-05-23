@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Menu;
 use App\Models\Package;
 use App\Models\SubMenu;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Yajra\DataTables\DataTables;
 
 class PackageController extends Controller
@@ -95,14 +95,46 @@ class PackageController extends Controller
         return response()->json([
             'success'  => true,
             'package'  => $package,
-            'submenus' => $package->subMenus
+            'submenus' => $package->subMenus->pluck('id')
         ]);
     }
 
-    public function testing()
+    public function update(Request $request, Package $package)
     {
-        $package = Package::with('subMenus')->where('id', 6)->first();
+        $validator = Validator::make($request->all(), [
+            'code'        => ['required', 'min:2', 'max:2', 'alpha_num', Rule::unique('packages')->ignore($package->id)],
+            'name'        => 'required',
+            'description' => 'required',
+            'sub_menu_id' => 'required'
+        ], [
+            'sub_menu_id.required' => 'Please select at least one menu'
+        ]);
 
-        dd($package);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $package->update([
+            'code'        => $request->code,
+            'name'        => $request->name,
+            'description' => $request->description
+        ]);
+        $submenus = SubMenu::find($request->sub_menu_id);
+        $package->subMenus()->sync($submenus);
+
+        return response()->json([
+            'success' => true,
+            'data'    => $package
+        ]);
+    }
+
+    public function destroy(Package $package)
+    {
+        $package->delete();
+
+        return response()->json([
+            'message' => true,
+            'data'    => $package
+        ]);
     }
 }

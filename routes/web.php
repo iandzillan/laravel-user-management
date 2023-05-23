@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\Setting\PermissionController;
 use App\Http\Controllers\Setting\MenuController;
 use App\Http\Controllers\Setting\PackageController;
 use App\Http\Controllers\Setting\SubMenuController;
@@ -71,7 +72,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('/{submenu}', [SubMenuController::class, 'destroy'])->name('submenus.destroy');
     });
 
-    // permission
+    // package
     Route::group(['prefix' => 'packages'], function () {
         Route::get('/', [PackageController::class, 'index'])->name('packages.index');
         Route::post('/store', [PackageController::class, 'store'])->name('packages.store');
@@ -80,5 +81,13 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('/{package}', [PackageController::class, 'destroy'])->name('packages.destroy');
     });
 
-    Route::get('/testing', [PackageController::class, 'testing']);
+    // permission
+    Route::group(['prefix' => 'permission'], function () {
+        Route::get('/', [PermissionController::class, 'index'])->name('permissions.index');
+        Route::get('/get-users', [PermissionController::class, 'getUsers'])->name('permissions.getusers');
+        Route::post('/store', [PermissionController::class, 'store'])->name('permissions.store');
+        Route::get('/{permission}/edit', [PermissionController::class, 'edit'])->name('permissions.edit');
+        Route::patch('/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
+        Route::delete('/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
+    });
 });

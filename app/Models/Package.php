@@ -15,4 +15,9 @@ class Package extends Model
     {
         return $this->belongsToMany(SubMenu::class)->withTimestamps();
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class)->withTimestamps();
+    }
 }

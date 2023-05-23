@@ -18,13 +18,36 @@ class UserSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
         $faker->seed(123);
-        $role = Role::pluck('id');
 
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 1; $i++) {
             $firstname = $faker->firstName();
             $lastname  = $faker->lastName();
             User::create([
-                'role_id'  => $faker->randomElement($role),
+                'role_id'  => 1,
+                'name'     => $firstname . ' ' . $lastname,
+                'email'    => strtolower($firstname) . '@testing.com',
+                'username' => strtolower($firstname),
+                'password' => Hash::make('password')
+            ]);
+        }
+
+        for ($i = 0; $i < 1; $i++) {
+            $firstname = $faker->firstName();
+            $lastname  = $faker->lastName();
+            User::create([
+                'role_id'  => 2,
+                'name'     => $firstname . ' ' . $lastname,
+                'email'    => strtolower($firstname) . '@testing.com',
+                'username' => strtolower($firstname),
+                'password' => Hash::make('password')
+            ]);
+        }
+
+        for ($i = 0; $i < 3; $i++) {
+            $firstname = $faker->firstName();
+            $lastname  = $faker->lastName();
+            User::create([
+                'role_id'  => 3,
                 'name'     => $firstname . ' ' . $lastname,
                 'email'    => strtolower($firstname) . '@testing.com',
                 'username' => strtolower($firstname),

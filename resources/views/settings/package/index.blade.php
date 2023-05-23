@@ -31,13 +31,13 @@
                 <div class="invalid-feedback d-none" role="alert" id="alert-sub_menu_id"></div>
                 <div class="row d-flex justify-content-start">
                     @forelse ($menus as $menu)
-                        <div class="mb-3 col-lg-3 col-md-6">
+                        <div class="mb-3 col-lg-4 col-md-6">
                             <div class="accordion" id="accordionPanels{{ $menu->id }}">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header" id="panelsStayOpen-{{ $menu->id }}">
                                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse{{ $menu->id }}" aria-expanded="true" aria-controls="panelsStayOpen-collapse{{ $menu->id }}">
                                             <i class="ti ti-{{ $menu->icon }} mx-1"></i>
-                                            {{ $menu->name }}
+                                            {{ $menu->code }} - {{ $menu->name }}
                                         </button>
                                     </h2>
                                     <div id="panelsStayOpen-collapse{{ $menu->id }}" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-{{ $menu->id }}">
@@ -46,7 +46,7 @@
                                                 @forelse ($menu->subMenus as $submenu)
                                                     <label class="list-group-item">
                                                         <input class="form-check-input me-1" type="checkbox" value="{{ $submenu->id }}" name="sub_menu_id[]" id="sub-menu-id">
-                                                        {{ $submenu->name }}
+                                                        {{ $submenu->code }} - {{ $submenu->name }}
                                                     </label>
                                                 @empty
                                                     <p class="text-center">No data...</p>
@@ -78,6 +78,7 @@
                             <th>#</th>
                             <th>Code</th>
                             <th>Package</th>
+                            <th>Description</th>
                             <th>Menu</th>
                             <th>Actions</th>
                         </tr>
@@ -90,6 +91,7 @@
     <script>
         $(document).ready(function(){
             let table;
+            // table package
             table = $('#data-package').DataTable({
                 processing: true,
                 serverSide: true,
@@ -101,11 +103,13 @@
                     {data: 'DT_RowIndex', name: 'DT_RowIndex'},
                     {data: 'code', name: 'code'},
                     {data: 'name', name: 'name'},
+                    {data: 'description', name: 'description'},
                     {data: 'menus', name: 'menus'},
                     {data: 'actions', name: 'actions'},
                 ]
             });
 
+            // store package
             $('#form-package').on('submit', function(e){
                 e.preventDefault();
                 let textToast, typeJson, message, formData, url, storeURL, btnValue;
@@ -158,6 +162,7 @@
                         $('html,body').animate({scrollTop: $("#table-package").offset().top},'fast');
                         table.draw();
                     }, error: function(error){
+                        console.log(error.responseJSON.message);
                         swal.fire({
                             toast: true,
                             position: 'top-end',
@@ -177,6 +182,7 @@
                 });
             });
 
+            // edit package
             $('body').on('click', '#btn-edit', function(){
                 let id, editURL, updateURL, checkbox;
                 id = $(this).data('id');
@@ -198,17 +204,86 @@
 
                         updateURL = "{{ route('packages.update', ":id") }}";
                         updateURL     = updateURL.replace(':id', id);
-                        $('#form-package').attr('action', updateURL).attr('method', 'patch');
+                        $('#form-package').attr('action', updateURL).attr('method', 'patch').trigger('reset');
                         $('#id').val(response.package.id);
                         $('#code').val(response.package.code);
                         $('#name').val(response.package.name);
                         $('#description').val(response.package.description);
                         $.each(response.submenus, function(i, submenu){
-                            $('#sub-menu-id').val(submenu.id).attr('checked', 'checked');
+                            $('input:checkbox[value="'+submenu+'"]').prop('checked', true);
                         });
                         $('#cancel').removeClass('d-none');
                         $('#store').val('edit');
                         $('html,body').animate({scrollTop: $("#form").offset().top},'fast');
+                    }
+                });
+            });
+
+            // cancel edit package
+            $('#cancel').on('click', function(){
+                let storeURL;
+                storeURL = "{{ route('packages.store') }}";
+                $('#form-package').attr('action', storeURL).attr('method', 'post');
+                $('#store').val('store');
+                swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    text: 'Cancel editing',
+                    showConfirmButton: false,
+                    timerProgressBar: true,
+                    timer: 2000
+                });
+                $(this).addClass('d-none');
+                $('.invalid-feedback').removeClass('d-block');
+                $('input').removeClass('is-invalid');
+            });
+
+            // delete package 
+            $('body').on('click', '#btn-delete', function(){
+                let id, url;
+                id  = $(this).data('id');
+                url = "{{ route('packages.destroy', ':id') }}";
+                url = url.replace(':id', id);
+
+                swal.fire({
+                    icon: 'warning',
+                    title: 'Are you sure?',
+                    text: 'All related data will be deleted as well',
+                    showCancelButton: true,
+                    cancelButtonText: 'No',
+                    confirmButtonText: 'Yes',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'warning',
+                            text: 'Please wait, deleting the data...',
+                            showConfirmButton: false,
+                            timerProgressBar: true,
+                            timer: 2000
+                        });
+
+                        $.ajax({
+                            url: url,
+                            type: 'delete',
+                            cache: false,
+                            success: function(response){
+                                swal.fire({
+                                    toast: true, 
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    text: response.data.name + ' has been deleted',
+                                    showConfirmButton: false,
+                                    timerProgressBar: true,
+                                    timer: 2000
+                                });
+                                table.draw();
+                            }, error: function(error){
+                                console.log(error.responseJSON.message);
+                            }
+                        });
                     }
                 });
             });
