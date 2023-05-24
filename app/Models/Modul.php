@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SubMenu extends Model
+class Modul extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['code', 'menu_id', 'icon', 'name'];
+    protected $fillable = ['code', 'name', 'icon', 'description'];
 
-    public function menu()
+    public function menus()
     {
-        return $this->belongsTo(Menu::class);
+        return $this->belongsToMany(Menu::class)->withTimestamps();
     }
 
     public function packages()

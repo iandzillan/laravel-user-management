@@ -1,26 +1,28 @@
 @extends('layouts.app')
 
 @section('content')
-    {{-- form --}}
+    {{-- Form --}}
     <div class="card" id="form">
         <div class="card-body">
             <h5 class="card-title fw-semibold mb-4">Menus</h5>
             <hr>
             <h6 class="fw-semibold mb-3">Form Menu</h6>
             <form action="{{ route('menus.store') }}" method="post" id="form-menu">
-                <div class="row d-flex justify-content-center">
+                <div class="row d-flex justify-content-start">
                     <input type="hidden" name="id" id="id">
-                    <div class="mb-3 col-lg-4 col-md-12">
-                        <label for="code" class="form-label">Code Menu</label>
-                        <input type="text" name="code" id="code" class="form-control" placeholder="Example: T001">
+                    <div class="mb-3 col-lg-6 col-md-12">
+                        <label for="code" class="form-label">Code</label>
+                        <div class="input-group">
+                            <input type="text" name="code" id="code" class="form-control" placeholder="Example: T01">
+                        </div>
                         <div class="invalid-feedback d-none" role="alert" id="alert-code"></div>
                     </div>
-                    <div class="mb-3 col-lg-4 col-md-12">
+                    <div class="mb-3 col-lg-6 col-md-12">
                         <label for="name" class="form-label">Name</label>
                         <input type="text" name="name" id="name" class="form-control">
                         <div class="invalid-feedback d-none" role="alert" id="alert-name"></div>
                     </div>
-                    <div class="mb-3 col-lg-4 col-md-12">
+                    <div class="mb-3 col-lg-6 col-md-12">
                         <label for="icon" class="form-label">Icon</label>
                         <div class="input-group">
                             <input type="text" name="icon" id="icon" class="form-control">
@@ -31,21 +33,17 @@
                         <span class="text-small text-warning">*Click the box to see icon references</span>
                         <div class="invalid-feedback d-none" role="alert" id="alert-icon"></div>
                     </div>
-                    <div class="mb-3 col-lg-12 col-md-12">
-                        <label for="description" class="form-label">Menu Description</label>
-                        <textarea class="form-control" name="description" id="description" rows="3"></textarea>
-                        <div class="invalid-feedback d-none" role="alert" id="alert-description"></div>
-                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
-                <button type="reset" class="btn btn-danger d-none" id="cancel" value="cancel">Cancel</button>
+                <button type="reset" class="btn btn-danger d-none" id="cancel">Cancel</button>
             </form>
         </div>
     </div>
 
+    {{-- Data Tables --}}
     <div class="card" id="table-menu">
         <div class="card-body">
-            <h6 class="fw-semibold mb-3">Menus List</h6>
+            <h6 class="fw-semibold mb-3">Menu List</h6>
             <div class="table-responsive">
                 <table class="table table-bordered" id="data-menu" style="width: 100%">
                     <thead>
@@ -53,9 +51,7 @@
                             <th>#</th>
                             <th>Code</th>
                             <th>Menu</th>
-                            <th>icon</th>
-                            <th>Description</th>
-                            <th>Sub Menu</th>
+                            <th>Icon</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -64,9 +60,11 @@
         </div>
     </div>
 
+    {{-- Script --}}
     <script>
         $(document).ready(function(){
             let table;
+            // data table
             table = $('#data-menu').DataTable({
                 processing: true,
                 serverSide: true,
@@ -78,14 +76,12 @@
                     {data: 'DT_RowIndex', name: 'DT_RowIndex'},
                     {data: 'code', name: 'code'},
                     {data: 'name', name: 'name'},
-                    {data: 'icon', name: 'icon'},
-                    {data: 'description', name: 'description'},
-                    {data: 'sub_menus_count', name: 'sub_menus_count'},
+                    {data: 'icon', name: 'icon', orderable: false, searchable: false},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false},
                 ]
             });
 
-            // store menu
+            // store-menu
             $('#form-menu').on('submit', function(e){
                 e.preventDefault();
                 let textToast, typeJson, message, formData, url;
@@ -106,17 +102,15 @@
                     icon: 'warning',
                     text: textToast,
                     showConfirmButton: false,
-                    timerProgressBar: true,
-                    timer: 2000
+                    timerProgressBar: true
                 });
 
                 formData  = $(this).serializeArray();
                 url       = $(this).attr('action');
-
                 $.ajax({
-                    url: url, 
+                    url: url,
                     type: typeJson,
-                    data: formData,
+                    data: formData, 
                     dataType: 'json',
                     cache: false,
                     success: function(response){
@@ -137,6 +131,7 @@
                         $('html,body').animate({scrollTop: $("#table-menu").offset().top},'fast');
                         table.draw();
                     }, error: function(error){
+                        console.log(error.responseJSON.message);
                         swal.fire({
                             toast: true,
                             position: 'top-end',
@@ -146,7 +141,7 @@
                             timer: 2000
                         });
                         $('.invalid-feedback').removeClass('d-block').addClass('d-none');
-                        $('input').removeClass('is-invalid');
+                        $('input').addClass('is-invalid');
                         $.each(error.responseJSON, function(i, error){
                             $('#alert-'+i).addClass('d-block').removeClass('d-none').html(error[0]);
                             $('input[name="'+i+'"]').addClass('is-invalid');
@@ -155,12 +150,11 @@
                 });
             });
 
-            // edit menu 
+            // edit menu
             $('body').on('click', '#btn-edit', function(){
-                let id, editURL;
-                id      = $(this).data('id');
-                editURL = "{{ route('menus.edit', ":id") }}";
-                editURL = editURL.replace(':id', id);
+                let id        = $(this).data('id');
+                let editURL   = "{{ route('menus.edit', ":id") }}";
+                editURL       = editURL.replace(':id', id);
                 $.ajax({
                     url: editURL,
                     type: 'get',
@@ -170,7 +164,7 @@
                             toast: true,
                             position: 'top-end',
                             icon: 'warning',
-                            text: "You're editing " + response.data.name,
+                            text: "You're editing " + response.data.name + " sub menu",
                             showConfirmButton: false
                         });
 
@@ -181,7 +175,7 @@
                         $('#code').val(response.data.code);
                         $('#name').val(response.data.name);
                         $('#icon').val(response.data.icon);
-                        $('#description').val(response.data.description);
+                        $('#modul-id option[value="'+response.data.modul_id+'"]').attr('selected', 'selected').change();
                         $('#cancel').removeClass('d-none');
                         $('#store').val('edit');
                         $('html,body').animate({scrollTop: $("#form").offset().top},'fast');
@@ -189,7 +183,7 @@
                 });
             });
 
-            // cancel edit user
+            // cancel edit menu
             $('#cancel').on('click', function(){
                 let storeURL = "{{ route('menus.store') }}";
                 $('#form-menu').attr('action', storeURL).attr('method', 'post');
@@ -249,6 +243,8 @@
                                     timer: 2000
                                 });
                                 table.draw();
+                            }, error: function(error){
+                                console.log(error.responseJSON.message);
                             }
                         });
                     }

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\Role;
+use App\Models\Package;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,53 +21,64 @@ class UserController extends Controller
         if ($request->ajax()) {
             return DataTables::of($users)
                 ->addIndexColumn()
+                ->addColumn('packages', function ($row) {
+                    $list = '<ul>';
+                    foreach ($row->packages as $package) {
+                        $list = $list . '<li><strong>' . $package->name . '</strong></li>';
+                        $list = $list . '<ol>';
+                        foreach ($package->moduls as $modul) {
+                            $list = $list . '<li>' . $modul->name . '</li>';
+                            $list = $list . '<ul>';
+                            foreach ($modul->menus as $menu) {
+                                $list = $list . '<li class="mx-1"> <i class="ti ti-' . $menu->icon . '"></i> ' . $menu->name . '</li>';
+                            }
+                            $list = $list . '</ul>';
+                        }
+                        $list = $list . '</ol>';
+                    }
+                    $list = $list . '</ul>';
+                    return $list;
+                })
                 ->addColumn('actions', function ($row) {
                     $btn = '<a class="btn btn-info btn-sm" data-id="' . $row->id . '" title="Edit user" id="btn-edit"><i class="ti ti-edit"></i></a>';
                     $btn = $btn . '<a class="btn btn-danger btn-sm" data-id="' . $row->id . '" title="Delete user" id="btn-delete"><i class="ti ti-trash"></i></a>';
                     return $btn;
                 })
-                ->addColumn('role', function ($row) {
-                    return $row->role->name;
-                })
-                ->rawColumns(['actions'])
+                ->rawColumns(['packages', 'actions'])
                 ->make(true);
         }
 
         return view('settings.user.index', [
-            'title' => 'Users',
-            'name'  => Auth::user()->name
+            'title'    => 'Users',
+            'name'     => Auth::user()->name,
+            'packages' => Package::all()
         ]);
-    }
-
-    public function getRoles()
-    {
-        $roles = Role::all();
-
-        return response()->json($roles);
     }
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'role_id'  => 'required',
-            'name'     => 'required',
-            'email'    => 'required|email:rfc,dns|unique:users',
-            'username' => 'required|unique:users',
-            'password' => 'required|confirmed'
+            'name'       => 'required',
+            'email'      => 'required|email:rfc,dns|unique:users',
+            'username'   => 'required|unique:users',
+            'password'   => 'required|confirmed',
+            'package_id' => 'required'
+        ], [
+            'package_id.required' => 'Please select at least one package'
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $role           = Role::where('id', $request->role_id)->first();
+        $packages       = Package::find($request->package_id);
         $user           = new User();
         $user->name     = ucwords($request->name);
         $user->email    = $request->email;
         $user->username = $request->username;
         $user->password = Hash::make($request->password);
-        $user->role()->associate($role);
         $user->save();
+        $user->packages()->toggle($packages);
 
 
         return response()->json([
@@ -79,19 +90,22 @@ class UserController extends Controller
     public function edit(User $user)
     {
         return response()->json([
-            'success' => true,
-            'data'    => $user
+            'success'  => true,
+            'data'     => $user,
+            'packages' => $user->packages->pluck('id')
         ]);
     }
 
     public function update(Request $request, User $user)
     {
         $validator = Validator::make($request->all(), [
-            'role_id'  => 'required',
-            'name'     => 'required',
-            'email'    => ['required', 'email:rfc,dns', Rule::unique('users')->ignore($user->id)],
-            'username' => ['required', Rule::unique('users')->ignore($user->id)],
-            'password' => 'sometimes|confirmed'
+            'name'       => 'required',
+            'email'      => ['required', 'email:rfc,dns', Rule::unique('users')->ignore($user->id)],
+            'username'   => ['required', Rule::unique('users')->ignore($user->id)],
+            'password'   => 'sometimes|confirmed',
+            'package_id' => 'required'
+        ], [
+            'package_id.required' => 'Please select at least one package'
         ]);
 
         if ($validator->fails()) {
@@ -102,13 +116,13 @@ class UserController extends Controller
             $user->password = Hash::make($request->password);
         }
 
-        $role           = Role::where('id', $request->role_id)->first();
+        $packages       = Package::find($request->package_id);
         $user->name     = ucwords($request->name);
         $user->email    = $request->email;
         $user->username = $request->username;
         $user->password = $user->password;
-        $user->role()->associate($role);
         $user->save();
+        $user->packages()->sync($packages);
 
         return response()->json([
             'success' => true,

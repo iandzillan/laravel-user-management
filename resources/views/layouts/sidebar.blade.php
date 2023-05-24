@@ -35,11 +35,27 @@
                     <span class="hide-menu">Settings</span>
                 </li>
                 <li class="sidebar-item">
-                    <a href="{{ route('roles.index') }}" class="sidebar-link" aria-expanded="false">
+                    <a href="{{ route('menus.index') }}" class="sidebar-link" aria-expanded="false">
                         <span>
-                            <i class="ti ti-user-check"></i>
+                            <i class="ti ti-folders"></i>
                         </span>
-                        <span class="hide-menu">Role</span>
+                        <span class="hide-menu">Menu</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('moduls.index') }}" class="sidebar-link" aria-expanded="false">
+                        <span>
+                            <i class="ti ti-folder"></i>
+                        </span>
+                        <span class="hide-menu">Modul</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('packages.index') }}" class="sidebar-link" aria-expanded="false">
+                        <span>
+                            <i class="ti ti-box"></i>
+                        </span>
+                        <span class="hide-menu">Package</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
@@ -51,35 +67,11 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="{{ route('menus.index') }}" class="sidebar-link" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-folder"></i>
-                        </span>
-                        <span class="hide-menu">Menu</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="{{ route('submenus.index') }}" class="sidebar-link" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-folders"></i>
-                        </span>
-                        <span class="hide-menu">Sub Menu</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="{{ route('packages.index') }}" class="sidebar-link" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-list-check"></i>
-                        </span>
-                        <span class="hide-menu">Menu Package</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
                     <a href="{{ route('permissions.index') }}" class="sidebar-link" aria-expanded="false">
                         <span>
                             <i class="ti ti-fingerprint"></i>
                         </span>
-                        <span class="hide-menu">User Permission</span>
+                        <span class="hide-menu">Permission</span>
                     </a>
                 </li>
             </ul>

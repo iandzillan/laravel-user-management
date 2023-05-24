@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Setting;
 
 use App\Http\Controllers\Controller;
-use App\Models\Menu;
+use App\Models\Modul;
 use App\Models\Package;
-use App\Models\SubMenu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -21,27 +20,17 @@ class PackageController extends Controller
         if ($request->ajax()) {
             return DataTables::of($packages)
                 ->addIndexColumn()
-                ->addColumn('menus', function ($row) {
-                    $id = [];
-                    $submenus = $row->subMenus;
-                    foreach ($submenus as $submenu) {
-                        $id[] = $submenu->id;
-                    }
-
-                    $menus = Menu::with('subMenus')->whereHas('subMenus', function ($q) use ($id) {
-                        $q->whereIn('id', $id);
-                    })->get();
-
-                    $list = '<ol class="list-group list-group-flush">';
-                    foreach ($menus as $menu) {
-                        $list = $list . '<li class="list-group-item"><b>' . $menu->name . ':</b>';
+                ->addColumn('moduls', function ($row) {
+                    $list = '<ul class="mb-2">';
+                    foreach ($row->moduls as $modul) {
+                        $list = $list . '<li><strong>' . $modul->name . '</strong></li>';
                         $list = $list . '<ul>';
-                        foreach ($menu->subMenus->whereIn('id', $id) as $submenu) {
-                            $list = $list . '<li>' . $submenu->name . '</li>';
+                        foreach ($modul->menus as $menu) {
+                            $list = $list . '<li><i class="ti ti-' . $menu->icon . '"></i>' . $menu->name . '</li>';
                         }
-                        $list = $list . '</ul></li>';
+                        $list = $list . '</ul>';
                     }
-                    $list = $list . '</ol>';
+                    $list = $list . '</ul>';
 
                     return $list;
                 })
@@ -50,14 +39,14 @@ class PackageController extends Controller
                     $btn = $btn . '<a class="btn btn-danger btn-sm" id="btn-delete" data-id="' . $row->id . '" title="Delete"><i class="ti ti-trash"></i></a>';
                     return $btn;
                 })
-                ->rawColumns(['menus', 'actions'])
+                ->rawColumns(['moduls', 'actions'])
                 ->make(true);
         }
 
         return view('settings.package.index', [
-            'title' => 'Menu Package',
-            'name'  => Auth::user()->name,
-            'menus' => Menu::all()
+            'title'  => 'Menu Package',
+            'name'   => Auth::user()->name,
+            'moduls' => Modul::all()
         ]);
     }
 
@@ -67,9 +56,9 @@ class PackageController extends Controller
             'code'        => 'required|unique:packages|min:2|max:2|alpha_num',
             'name'        => 'required',
             'description' => 'required',
-            'sub_menu_id' => 'required'
+            'modul_id' => 'required'
         ], [
-            'sub_menu_id.required' => 'Please select at least one menu'
+            'modul_id.required' => 'Please select at least one modul'
         ]);
 
         if ($validator->fails()) {
@@ -81,8 +70,8 @@ class PackageController extends Controller
             'name'        => $request->name,
             'description' => $request->description
         ]);
-        $submenus = SubMenu::find($request->sub_menu_id);
-        $package->subMenus()->toggle($submenus);
+        $moduls = Modul::find($request->modul_id);
+        $package->moduls()->toggle($moduls);
 
         return response()->json([
             'success' => true,
@@ -95,7 +84,7 @@ class PackageController extends Controller
         return response()->json([
             'success'  => true,
             'package'  => $package,
-            'submenus' => $package->subMenus->pluck('id')
+            'moduls'   => $package->moduls->pluck('id')
         ]);
     }
 
@@ -105,9 +94,9 @@ class PackageController extends Controller
             'code'        => ['required', 'min:2', 'max:2', 'alpha_num', Rule::unique('packages')->ignore($package->id)],
             'name'        => 'required',
             'description' => 'required',
-            'sub_menu_id' => 'required'
+            'modul_id'    => 'required'
         ], [
-            'sub_menu_id.required' => 'Please select at least one menu'
+            'modul_id.required' => 'Please select at least one modul'
         ]);
 
         if ($validator->fails()) {
@@ -119,8 +108,8 @@ class PackageController extends Controller
             'name'        => $request->name,
             'description' => $request->description
         ]);
-        $submenus = SubMenu::find($request->sub_menu_id);
-        $package->subMenus()->sync($submenus);
+        $moduls = Modul::find($request->modul_id);
+        $package->moduls()->sync($moduls);
 
         return response()->json([
             'success' => true,

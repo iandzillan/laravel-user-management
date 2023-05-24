@@ -9,10 +9,15 @@ class Menu extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['code', 'name', 'icon', 'description'];
+    protected $fillable = ['code', 'icon', 'name'];
 
-    public function subMenus()
+    public function moduls()
     {
-        return $this->hasMany(SubMenu::class, 'menu_id');
+        return $this->belongsToMany(Modul::class);
+    }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class)->withTimestamps();
     }
 }

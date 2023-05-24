@@ -8,7 +8,7 @@
             <hr>
             <h6 class="fw-semibold mb-3">Form User</h6>
             <form action="{{ route('users.store') }}" method="post" id="form-user">
-                <div class="row d-flex justify-content-center">
+                <div class="row d-flex justify-content-start">
                     <input type="hidden" name="id" id="id">
                     <div class="mb-3 col-lg-6 col-md-12">
                         <label for="name" class="form-label">Name</label>
@@ -20,15 +20,10 @@
                         <input type="text" name="username" id="username" class="form-control">
                         <div class="invalid-feedback d-none" role="alert" id="alert-username"></div>
                     </div>
-                    <div class="mb-3 col-lg-6 col-md-12">
+                    <div class="mb-3 col-lg-12 col-md-12">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" name="email" id="email" class="form-control">
                         <div class="invalid-feedback d-none" role="alert" id="alert-email"></div>
-                    </div>
-                    <div class="mb-3 col-lg-6 col-md-12">
-                        <label for="role" class="form-label">Role</label>
-                        <select name="role_id" id="role-id" class="form-select" data-placeholder="--Choose--"></select>
-                        <div class="invalid-feedback d-none" role="alert" id="alert-role"></div>
                     </div>
                     <div class="mb-3 col-lg-6 col-md-12">
                         <label for="password" class="form-label">Password</label>
@@ -39,6 +34,47 @@
                         <label for="password" class="form-label">Password Confirmation</label>
                         <input type="password" name="password_confirmation" id="password_confirmation" class="form-control">
                         <div class="invalid-feedback d-none" role="alert" id="alert-password_confirmation"></div>
+                    </div>
+                    <div class="mb-3 col-lg-12 col-md-12">
+                        <label class="form-label">Package</label>
+                        <div class="invalid-feedback d-none" role="alert" id="alert-package_id"></div>
+                        <div class="row d-flex justify-content-start">
+                            @forelse ($packages as $package)
+                                <div class="mb-3 col-lg-4 col-md-6">
+                                    <div class="accordion">
+                                        <div class="accordion-item">
+                                            <div class="accordion-header d-flex align-items-center" style="column-gap: 1rem; padding-left: 1rem">
+                                                <input type="checkbox" class="form-check-input" name="package_id[]" id="package-id" value="{{ $package->id }}">
+                                                <button class="accordion-button" style="background: none; padding-left: 0" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-{{ $package->code }}">
+                                                {{ $package->code }} - {{ $package->name }}
+                                            </button>
+                                            </div>
+                                            <div id="panelsStayOpen-{{ $package->code }}" class="accordion-collapse collapse show">
+                                                <div class="accordion-body">
+                                                    <strong>Modul:</strong>
+                                                    <ul>
+                                                        @forelse ($package->moduls->sortBy('code') as $modul)
+                                                            <li>{{ $modul->code }} - {{ $modul->name }}</li>
+                                                            <ul>
+                                                                @forelse ($modul->menus->sortBy('code') as $menu)
+                                                                    <li class="mx-3">{{ $menu->code }} - <i class="ti ti-{{ $menu->icon }}"></i> {{ $menu->name }}</li>
+                                                                @empty
+                                                                    <p class="text-center">No data...</p>
+                                                                @endforelse
+                                                            </ul>
+                                                        @empty
+                                                            <p class="text-center">No data...</p>
+                                                        @endforelse
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <p class="text-center">No data...</p>
+                            @endforelse
+                        </div>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
@@ -59,7 +95,7 @@
                             <th>Name</th>
                             <th>Username</th>
                             <th>Email</th>
-                            <th>Role</th>
+                            <th>Package</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -84,22 +120,9 @@
                     {data: 'name', name: 'name'},
                     {data: 'username', name: 'username'},
                     {data: 'email', name: 'email'},
-                    {data: 'role', name: 'role'},
+                    {data: 'packages', name: 'packages'},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false},
                 ]
-            });
-
-            // form-select roles
-            $.ajax({
-                url: "{{ route('users.roles') }}",
-                type: 'get',
-                cache: false,
-                success: function(response){
-                    $('#role-id').append('<option selected disabled> -- Choose -- </option>');
-                    $.each(response, function(i, role){
-                        $('#role-id').append('<option value="'+role.id+'">'+role.name+'</option>');
-                    });
-                }
             });
 
             // store user
@@ -146,7 +169,6 @@
                         });
                         let storeURL = "{{ route('users.store') }}";
                         $('#form-user').trigger('reset').attr('action', storeURL).attr('method', 'post');
-                        $('#role-id option:first').prop('selected', true).change();
                         $('.invalid-feedback').removeClass('d-block').addClass('d-none');
                         $('input').removeClass('is-invalid');
                         $('#store').val('store');
@@ -198,7 +220,9 @@
                         $('#name').val(response.data.name);
                         $('#username').val(response.data.username);
                         $('#email').val(response.data.email);
-                        $('#role-id option[value="'+response.data.role_id+'"]').attr('selected', 'selected').change();
+                        $.each(response.packages, function(i, package){
+                            $('input:checkbox[value="'+package+'"]').prop('checked', true);
+                        });
                         $('#cancel').removeClass('d-none');
                         $('#store').val('edit');
                         $('html,body').animate({scrollTop: $("#form").offset().top},'fast');
@@ -223,7 +247,6 @@
                 $(this).addClass('d-none');
                 $('.invalid-feedback').removeClass('d-block');
                 $('input').removeClass('is-invalid');
-                $('#role-id option:first').prop('selected', true).change();
             });
 
             // delete user

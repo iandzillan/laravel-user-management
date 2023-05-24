@@ -11,9 +11,9 @@ class Package extends Model
 
     protected $fillable = ['code', 'name', 'description'];
 
-    public function subMenus()
+    public function moduls()
     {
-        return $this->belongsToMany(SubMenu::class)->withTimestamps();
+        return $this->belongsToMany(Modul::class)->withTimestamps();
     }
 
     public function users()

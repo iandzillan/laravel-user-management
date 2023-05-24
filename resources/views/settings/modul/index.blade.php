@@ -1,26 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
-    {{-- Form --}}
+    {{-- form --}}
     <div class="card" id="form">
         <div class="card-body">
-            <h5 class="card-title fw-semibold mb-4">Sub Menus</h5>
+            <h5 class="card-title fw-semibold mb-4">Modul</h5>
             <hr>
-            <h6 class="fw-semibold mb-3">Form Sub Menu</h6>
-            <form action="{{ route('submenus.store') }}" method="post" id="form-submenu">
-                <div class="row d-flex justify-content-center">
+            <h6 class="fw-semibold mb-3">Form Modul</h6>
+            <form action="{{ route('moduls.store') }}" method="post" id="form-modul">
+                <div class="row d-flex justify-content-start">
                     <input type="hidden" name="id" id="id">
                     <div class="mb-3 col-lg-6 col-md-12">
-                        <label for="menu" class="form-label">Menu</label>
-                        <select name="menu_id" id="menu-id" class="form-select"></select>
-                        <div class="invalid-feedback d-none" role="alert" id="alert-menu"></div>
-                    </div>
-                    <div class="mb-3 col-lg-6 col-md-12">
                         <label for="code" class="form-label">Code</label>
-                        <div class="input-group">
-                            <span class="input-group-text" id="menu-code">...</span>
-                            <input type="text" name="code" id="code" class="form-control" placeholder="Example: T01">
-                        </div>
+                        <input type="text" name="code" id="code" class="form-control" placeholder="Example: T001">
                         <div class="invalid-feedback d-none" role="alert" id="alert-code"></div>
                     </div>
                     <div class="mb-3 col-lg-6 col-md-12">
@@ -28,37 +20,47 @@
                         <input type="text" name="name" id="name" class="form-control">
                         <div class="invalid-feedback d-none" role="alert" id="alert-name"></div>
                     </div>
-                    <div class="mb-3 col-lg-6 col-md-12">
-                        <label for="icon" class="form-label">Icon</label>
-                        <div class="input-group">
-                            <input type="text" name="icon" id="icon" class="form-control">
-                            <a href="https://tabler-icons.io/" target="_blank" class="btn btn-warning">
-                                <i class="ti ti-brand-codesandbox"></i>
-                            </a>
+                    <div class="mb-3 col-lg-12 col-md-12">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" name="description" id="description" rows="3"></textarea>
+                        <div class="invalid-feedback d-none" role="alert" id="alert-description"></div>
+                    </div>
+                    <label for="menu-id" class="form-label">Menu</label>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="col-lg-12 col-md-12">
+                                @forelse ($menus as $menu)
+                                    <div class="form-check form-check-inline">
+                                        <i class="ti ti-{{ $menu->icon }}"></i>
+                                        <input class="form-check-input" type="checkbox" id="menu-{{ $menu->id }}" name="menu_id[]" value="{{ $menu->id }}">
+                                        <label class="form-check-label" for="menu-{{ $menu->id }}">{{ $menu->name }}</label>
+                                    </div>
+                                @empty
+                                    <p class="text-center">No data...</p>
+                                @endforelse
+                            </div>
+                            <div class="invalid-feedback d-none" role="alert" id="alert-menu_id"></div>
                         </div>
-                        <span class="text-small text-warning">*Click the box to see icon references</span>
-                        <div class="invalid-feedback d-none" role="alert" id="alert-icon"></div>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
-                <button type="reset" class="btn btn-danger d-none" id="cancel">Cancel</button>
+                <button type="reset" class="btn btn-danger d-none" id="cancel" value="cancel">Cancel</button>
             </form>
         </div>
     </div>
 
-    {{-- Data Tables --}}
-    <div class="card" id="table-submenu">
+    <div class="card" id="table-modul">
         <div class="card-body">
-            <h6 class="fw-semibold mb-3">Sub Menus List</h6>
+            <h6 class="fw-semibold mb-3">Modul List</h6>
             <div class="table-responsive">
-                <table class="table table-bordered" id="data-submenu" style="width: 100%">
+                <table class="table table-bordered" id="data-modul" style="width: 100%">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th>Code</th>
-                            <th>Sub Menu</th>
-                            <th>Menu</th>
-                            <th>Icon</th>
+                            <th>Modul</th>
+                            <th>Description</th>
+                            <th>Count Menu</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -67,56 +69,28 @@
         </div>
     </div>
 
-    {{-- Script --}}
     <script>
         $(document).ready(function(){
             let table;
-            // data table
-            table = $('#data-submenu').DataTable({
+            table = $('#data-modul').DataTable({
                 processing: true,
                 serverSide: true,
                 initComplete: function (settings, json) {  
-                    $("#data-submenu").wrap("<div style='overflow:auto; width:100%; position:relative;'></div>");            
+                    $("#data-modul").wrap("<div style='overflow:auto; width:100%; position:relative;'></div>");            
                 },
-                ajax: "{{ route('submenus.index') }}",
+                ajax: "{{ route('moduls.index') }}",
                 columns: [
                     {data: 'DT_RowIndex', name: 'DT_RowIndex'},
                     {data: 'code', name: 'code'},
                     {data: 'name', name: 'name'},
-                    {data: 'menu', name: 'menu'},
-                    {data: 'icon', name: 'icon'},
+                    {data: 'description', name: 'description', orderable: false},
+                    {data: 'menus_count', name: 'menus_count'},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false},
                 ]
             });
 
-            // form-select menu
-            $.get("{{ route('submenus.menus') }}", function(response){
-                $('#menu-id').append('<option disabled selected>-- Choose --</option>');
-                $.each(response, function(i, menu){
-                    $('#menu-id').append('<option value="'+menu.id+'">'+menu.code+' - '+menu.name+'</option>');
-                });
-            });
-
-            // menu code
-            $('body').on('change', '#menu-id', function(){
-                let id, url;
-                id  = $('#menu-id').val();
-                url = "{{ route('submenus.menu', ":id") }}";
-                url = url.replace(':id', id);
-
-                $.get(url, function(response){
-                    if (id !== null) {
-                        $('#menu-code').html(response.code+'-');
-                    }
-                    
-                    if (id === null) {
-                        $('#menu-code').html('...');
-                    }
-                });
-            });
-
-            // store-submenu
-            $('#form-submenu').on('submit', function(e){
+            // store modul
+            $('#form-modul').on('submit', function(e){
                 e.preventDefault();
                 let textToast, typeJson, message, formData, url;
                 let btnValue = $('#store').val();
@@ -136,16 +110,16 @@
                     icon: 'warning',
                     text: textToast,
                     showConfirmButton: false,
-                    timerProgressBar: true,
-                    timer: 2000
+                    timerProgressBar: true
                 });
 
                 formData  = $(this).serializeArray();
                 url       = $(this).attr('action');
+
                 $.ajax({
-                    url: url,
+                    url: url, 
                     type: typeJson,
-                    data: formData, 
+                    data: formData,
                     dataType: 'json',
                     cache: false,
                     success: function(response){
@@ -155,16 +129,16 @@
                             icon: 'success',
                             text: response.data.name + message,
                             showConfirmButton: false,
+                            timerProgressBar: true,
                             timer: 2000
                         });
-                        let storeURL = "{{ route('submenus.store') }}";
-                        $('#form-submenu').trigger('reset').attr('action', storeURL).attr('method', 'post');
-                        $('#menu-id option:first').prop('selected', true).change();
+                        let storeURL = "{{ route('moduls.store') }}";
+                        $('#form-modul').trigger('reset').attr('action', storeURL).attr('method', 'post');
                         $('.invalid-feedback').removeClass('d-block').addClass('d-none');
                         $('input').removeClass('is-invalid');
                         $('#store').val('store');
                         $('#cancel').addClass('d-none');
-                        $('html,body').animate({scrollTop: $("#table-submenu").offset().top},'fast');
+                        $('html,body').animate({scrollTop: $("#table-modul").offset().top},'fast');
                         table.draw();
                     }, error: function(error){
                         swal.fire({
@@ -177,19 +151,24 @@
                         });
                         $('.invalid-feedback').removeClass('d-block').addClass('d-none');
                         $('input').removeClass('is-invalid');
+                        $('textarea').removeClass('is-invalid');
+                        console.log(error.responseJSON);
                         $.each(error.responseJSON, function(i, error){
                             $('#alert-'+i).addClass('d-block').removeClass('d-none').html(error[0]);
                             $('input[name="'+i+'"]').addClass('is-invalid');
+                            $('input:checkbox[name="'+i+'[]"]').addClass('is-invalid');
+                            $('textarea[name="'+i+'"]').addClass('is-invalid');
                         });
                     }
                 });
             });
 
-            // edit submenu
+            // edit modul 
             $('body').on('click', '#btn-edit', function(){
-                let id        = $(this).data('id');
-                let editURL   = "{{ route('submenus.edit', ":id") }}";
-                editURL       = editURL.replace(':id', id);
+                let id, editURL;
+                id      = $(this).data('id');
+                editURL = "{{ route('moduls.edit', ":id") }}";
+                editURL = editURL.replace(':id', id);
                 $.ajax({
                     url: editURL,
                     type: 'get',
@@ -199,18 +178,21 @@
                             toast: true,
                             position: 'top-end',
                             icon: 'warning',
-                            text: "You're editing " + response.data.name + " sub menu",
+                            text: "You're editing " + response.data.name,
                             showConfirmButton: false
                         });
 
-                        let updateURL = "{{ route('submenus.update', ":id") }}";
+                        let updateURL = "{{ route('moduls.update', ":id") }}";
                         updateURL     = updateURL.replace(':id', id);
-                        $('#form-submenu').attr('action', updateURL).attr('method', 'patch');
+                        $('#form-modul').attr('action', updateURL).attr('method', 'patch');
                         $('#id').val(response.data.id);
                         $('#code').val(response.data.code);
                         $('#name').val(response.data.name);
                         $('#icon').val(response.data.icon);
-                        $('#menu-id option[value="'+response.data.menu_id+'"]').attr('selected', 'selected').change();
+                        $('#description').val(response.data.description);
+                        $.each(response.menus, function(i, menus){
+                            $('input:checkbox[value="'+menus+'"]').prop('checked', true);
+                        });
                         $('#cancel').removeClass('d-none');
                         $('#store').val('edit');
                         $('html,body').animate({scrollTop: $("#form").offset().top},'fast');
@@ -218,10 +200,10 @@
                 });
             });
 
-            // cancel edit submenu
+            // cancel edit user
             $('#cancel').on('click', function(){
-                let storeURL = "{{ route('submenus.store') }}";
-                $('#form-submenu').attr('action', storeURL).attr('method', 'post');
+                let storeURL = "{{ route('moduls.store') }}";
+                $('#form-modul').attr('action', storeURL).attr('method', 'post');
                 $('#store').val('store');
                 swal.fire({
                     toast: true,
@@ -235,14 +217,13 @@
                 $(this).addClass('d-none');
                 $('.invalid-feedback').removeClass('d-block');
                 $('input').removeClass('is-invalid');
-                $('#menu-id option:first').prop('selected', true).change();
             });
 
             // delete user
             $('body').on('click', '#btn-delete', function(){
                 let id, url;
                 id  = $(this).data('id');
-                url = "{{ route('submenus.destroy', ':id') }}";
+                url = "{{ route('moduls.destroy', ':id') }}";
                 url = url.replace(':id', id);
 
                 swal.fire({
@@ -260,8 +241,7 @@
                             icon: 'warning',
                             text: 'Please wait, deleting the data...',
                             showConfirmButton: false,
-                            timerProgressBar: true,
-                            timer: 2000
+                            timerProgressBar: true
                         });
 
                         $.ajax({
@@ -279,8 +259,6 @@
                                     timer: 2000
                                 });
                                 table.draw();
-                            }, error: function(error){
-                                console.log(error.responseJSON.message);
                             }
                         });
                     }

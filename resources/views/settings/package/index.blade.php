@@ -4,9 +4,9 @@
     {{-- Form --}}
     <div class="card" id="form">
         <div class="card-body">
-            <h5 class="card-title fw-semibold mb-4">Menu Packages</h5>
+            <h5 class="card-title fw-semibold mb-4">Packages</h5>
             <hr>
-            <h6 class="fw-semibold mb-3">Form Menu Package</h6>
+            <h6 class="fw-semibold mb-3">Form Package</h6>
             <form action="{{ route('packages.store') }}" method="post" id="form-package">
                 @method('post')
                 @csrf
@@ -23,42 +23,40 @@
                     </div>
                 </div>
                 <div class="mb-3 col-lg-12 col-md-12">
-                    <label for="description" class="form-label">Package Description</label>
+                    <label for="description" class="form-label">Description</label>
                     <textarea class="form-control" name="description" id="description" rows="3"></textarea>
                     <div class="invalid-feedback d-none" role="alert" id="alert-description"></div>
                 </div>
-                <label for="#" class="form-label">Menus</label>
-                <div class="invalid-feedback d-none" role="alert" id="alert-sub_menu_id"></div>
+                <label for="#" class="form-label">Modul</label>
+                <div class="invalid-feedback d-none" role="alert" id="alert-modul_id"></div>
                 <div class="row d-flex justify-content-start">
-                    @forelse ($menus as $menu)
+                    @forelse ($moduls as $modul)
                         <div class="mb-3 col-lg-4 col-md-6">
-                            <div class="accordion" id="accordionPanels{{ $menu->id }}">
+                            <div class="accordion">
                                 <div class="accordion-item">
-                                    <h2 class="accordion-header" id="panelsStayOpen-{{ $menu->id }}">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse{{ $menu->id }}" aria-expanded="true" aria-controls="panelsStayOpen-collapse{{ $menu->id }}">
-                                            <i class="ti ti-{{ $menu->icon }} mx-1"></i>
-                                            {{ $menu->code }} - {{ $menu->name }}
+                                    <div class="accordion-header d-flex align-items-center" style="column-gap: 1rem; padding-left: 1rem">
+                                        <input type="checkbox" class="form-check-input" name="modul_id[]" id="modul-id" value="{{ $modul->id }}">
+                                        <button class="accordion-button" style="background: none; padding-left: 0" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-{{ $modul->code }}">
+                                            {{ $modul->code }} - {{ $modul->name }}
                                         </button>
-                                    </h2>
-                                    <div id="panelsStayOpen-collapse{{ $menu->id }}" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-{{ $menu->id }}">
+                                    </div>
+                                    <div id="panelsStayOpen-{{ $modul->code }}" class="accordion-collapse collapse show">
                                         <div class="accordion-body">
-                                            <div class="list-group">
-                                                @forelse ($menu->subMenus as $submenu)
-                                                    <label class="list-group-item">
-                                                        <input class="form-check-input me-1" type="checkbox" value="{{ $submenu->id }}" name="sub_menu_id[]" id="sub-menu-id">
-                                                        {{ $submenu->code }} - {{ $submenu->name }}
-                                                    </label>
+                                            <strong>Menu:</strong>
+                                            <ul>
+                                                @forelse ($modul->menus->sortBy('code') as $menu)
+                                                    <li>{{ $menu->code }} - <i class="ti ti-{{ $menu->icon }}"></i> {{ $menu->name }}</li>
                                                 @empty
                                                     <p class="text-center">No data...</p>
                                                 @endforelse
-                                            </div>
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     @empty
-                        <p class="text-center">No data...</p>
+                        <p class="text-center">No Data...</p>
                     @endforelse
                 </div>
                 <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
@@ -79,7 +77,7 @@
                             <th>Code</th>
                             <th>Package</th>
                             <th>Description</th>
-                            <th>Menu</th>
+                            <th>Modul</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -103,9 +101,9 @@
                     {data: 'DT_RowIndex', name: 'DT_RowIndex'},
                     {data: 'code', name: 'code'},
                     {data: 'name', name: 'name'},
-                    {data: 'description', name: 'description'},
-                    {data: 'menus', name: 'menus'},
-                    {data: 'actions', name: 'actions'},
+                    {data: 'description', name: 'description', orderable: false},
+                    {data: 'moduls', name: 'moduls', orderable: false},
+                    {data: 'actions', name: 'actions', orderable: false, searchable: false},
                 ]
             });
 
@@ -130,8 +128,7 @@
                     icon: 'warning',
                     text: textToast,
                     showConfirmButton: false,
-                    timerProgressBar: true,
-                    timer: 2000
+                    timerProgressBar: true
                 });
 
                 formData  = $(this).serializeArray();
@@ -173,9 +170,11 @@
                         });
                         $('.invalid-feedback').removeClass('d-block').addClass('d-none');
                         $('input').removeClass('is-invalid');
+                        $('textarea').removeClass('is-invalid');
                         $.each(error.responseJSON, function(i, error){
                             $('#alert-'+i).addClass('d-block').removeClass('d-none').html(error[0]);
                             $('input[name="'+i+'"]').addClass('is-invalid');
+                            $('input:checkbox[name="'+i+'[]"]').addClass('is-invalid');
                             $('textarea[name="'+i+'"]').addClass('is-invalid');
                         });
                     }
@@ -209,8 +208,8 @@
                         $('#code').val(response.package.code);
                         $('#name').val(response.package.name);
                         $('#description').val(response.package.description);
-                        $.each(response.submenus, function(i, submenu){
-                            $('input:checkbox[value="'+submenu+'"]').prop('checked', true);
+                        $.each(response.moduls, function(i, moduls){
+                            $('input:checkbox[value="'+moduls+'"]').prop('checked', true);
                         });
                         $('#cancel').removeClass('d-none');
                         $('#store').val('edit');
@@ -232,7 +231,6 @@
                     text: 'Cancel editing',
                     showConfirmButton: false,
                     timerProgressBar: true,
-                    timer: 2000
                 });
                 $(this).addClass('d-none');
                 $('.invalid-feedback').removeClass('d-block');
@@ -276,8 +274,7 @@
                                     icon: 'success',
                                     text: response.data.name + ' has been deleted',
                                     showConfirmButton: false,
-                                    timerProgressBar: true,
-                                    timer: 2000
+                                    timerProgressBar: true
                                 });
                                 table.draw();
                             }, error: function(error){
