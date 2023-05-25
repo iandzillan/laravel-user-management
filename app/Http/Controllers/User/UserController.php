@@ -40,8 +40,9 @@ class UserController extends Controller
                     return $list;
                 })
                 ->addColumn('actions', function ($row) {
-                    $btn = '<a class="btn btn-info btn-sm" data-id="' . $row->id . '" title="Edit user" id="btn-edit"><i class="ti ti-edit"></i></a>';
-                    $btn = $btn . '<a class="btn btn-danger btn-sm" data-id="' . $row->id . '" title="Delete user" id="btn-delete"><i class="ti ti-trash"></i></a>';
+                    $btn = '<a class="btn btn-info btn-sm" data-id="' . $row->id . '" title="Edit" id="btn-edit"><i class="ti ti-edit"></i></a>';
+                    $btn = $btn . ' <a class="btn btn-success btn-sm" data-id="' . $row->id . '" title="Detail" id="btn-info"><i class="ti ti-info-circle"></i></a>';
+                    $btn = $btn . ' <a class="btn btn-danger btn-sm" data-id="' . $row->id . '" title="Delete" id="btn-delete"><i class="ti ti-trash"></i></a>';
                     return $btn;
                 })
                 ->rawColumns(['packages', 'actions'])
@@ -87,7 +88,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function edit(User $user)
+    public function show(User $user)
     {
         return response()->json([
             'success'  => true,

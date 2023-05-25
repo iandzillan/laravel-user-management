@@ -21,14 +21,15 @@ class PackageController extends Controller
             return DataTables::of($packages)
                 ->addIndexColumn()
                 ->addColumn('moduls', function ($row) {
-                    $list = '<ul class="mb-2">';
-                    foreach ($row->moduls as $modul) {
-                        $list = $list . '<li><strong>' . $modul->name . '</strong></li>';
-                        $list = $list . '<ul>';
+                    $list = '<ul>';
+                    foreach ($row->moduls->sortBy('code') as $modul) {
+                        $list = $list . '<li class="mb-3"><strong>' . $modul->name . '</strong>';
+                        $list = $list . '<ol>';
                         foreach ($modul->menus as $menu) {
-                            $list = $list . '<li><i class="ti ti-' . $menu->icon . '"></i>' . $menu->name . '</li>';
+                            $list = $list . '<li><i class="ti ti-' . $menu->icon . '"></i> ' . $menu->name . '</li>';
                         }
-                        $list = $list . '</ul>';
+                        $list = $list . '</ol>';
+                        $list = $list . '</li>';
                     }
                     $list = $list . '</ul>';
 
@@ -36,7 +37,8 @@ class PackageController extends Controller
                 })
                 ->addColumn('actions', function ($row) {
                     $btn = '<a class="btn btn-info btn-sm" id="btn-edit" data-id="' . $row->id . '" title="Edit"><i class="ti ti-edit"></i></a>';
-                    $btn = $btn . '<a class="btn btn-danger btn-sm" id="btn-delete" data-id="' . $row->id . '" title="Delete"><i class="ti ti-trash"></i></a>';
+                    $btn = $btn . ' <a class="btn btn-success btn-sm" id="btn-info" data-id="' . $row->id . '" title="Deatil"><i class="ti ti-info-circle"></i></a>';
+                    $btn = $btn . ' <a class="btn btn-danger btn-sm" id="btn-delete" data-id="' . $row->id . '" title="Delete"><i class="ti ti-trash"></i></a>';
                     return $btn;
                 })
                 ->rawColumns(['moduls', 'actions'])
@@ -46,7 +48,7 @@ class PackageController extends Controller
         return view('settings.package.index', [
             'title'  => 'Menu Package',
             'name'   => Auth::user()->name,
-            'moduls' => Modul::all()
+            'moduls' => Modul::all()->sortBy('code')
         ]);
     }
 
@@ -79,13 +81,31 @@ class PackageController extends Controller
         ]);
     }
 
-    public function edit(Package $package)
+    public function show(Package $package)
     {
         return response()->json([
             'success'  => true,
             'package'  => $package,
-            'moduls'   => $package->moduls->pluck('id')
+            'moduls'   => $package->moduls->pluck('id'),
+            // 'info'     => $this->info($package)
         ]);
+    }
+
+    public function info()
+    {
+        $packages = Package::find([2, 3]);
+        $data = [];
+        foreach ($packages as $package) {
+            foreach ($package->moduls->sortBy('code') as $modul) {
+                foreach ($modul->menus->sortBy('code') as $menu) {
+                    foreach ($menu->permissions as $permission) {
+                        $data[] = [
+                            'id'     => $loop->iteration,
+                        ];
+                    }
+                }
+            }
+        }
     }
 
     public function update(Request $request, Package $package)

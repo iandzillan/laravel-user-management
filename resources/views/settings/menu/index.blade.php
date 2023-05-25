@@ -8,7 +8,7 @@
             <hr>
             <h6 class="fw-semibold mb-3">Form Menu</h6>
             <form action="{{ route('menus.store') }}" method="post" id="form-menu">
-                <div class="row d-flex justify-content-start">
+                <div class="row d-flex justify-content-start mb-3">
                     <input type="hidden" name="id" id="id">
                     <div class="mb-3 col-lg-6 col-md-12">
                         <label for="code" class="form-label">Code</label>
@@ -23,6 +23,11 @@
                         <div class="invalid-feedback d-none" role="alert" id="alert-name"></div>
                     </div>
                     <div class="mb-3 col-lg-6 col-md-12">
+                        <label for="route-name" class="form-label">Route Name</label>
+                        <input type="text" name="route_name" id="route-name" class="form-control" placeholder="Example: users.index">
+                        <div class="invalid-feedback d-none" role="alert" id="alert-route_name"></div>
+                    </div>
+                    <div class="mb-3 col-lg-6 col-md-12">
                         <label for="icon" class="form-label">Icon</label>
                         <div class="input-group">
                             <input type="text" name="icon" id="icon" class="form-control">
@@ -32,6 +37,19 @@
                         </div>
                         <span class="text-small text-warning">*Click the box to see icon references</span>
                         <div class="invalid-feedback d-none" role="alert" id="alert-icon"></div>
+                    </div>
+                    <label for="permission-id" class="form-label">Permission</label>
+                    <div class="col-lg-12 col-md-12">
+                        @forelse ($permissions as $permission)
+                            <div class="form-check form-check-inline">
+                                <i class="ti ti-{{ $permission->icon }}"></i>
+                                <input class="form-check-input" type="checkbox" id="permission-{{ $permission->id }}" name="permission_id[]" value="{{ $permission->id }}">
+                                <label class="form-check-label" for="permission-{{ $permission->id }}">{{ $permission->name }}</label>
+                            </div>
+                        @empty
+                            <p class="text-center">No data...</p>
+                        @endforelse
+                        <div class="invalid-feedback d-none" role="alert" id="alert-permission_id"></div>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
@@ -51,6 +69,8 @@
                             <th>#</th>
                             <th>Code</th>
                             <th>Menu</th>
+                            <th>Route Name</th>
+                            <th>Permissions</th>
                             <th>Icon</th>
                             <th>Actions</th>
                         </tr>
@@ -76,6 +96,8 @@
                     {data: 'DT_RowIndex', name: 'DT_RowIndex'},
                     {data: 'code', name: 'code'},
                     {data: 'name', name: 'name'},
+                    {data: 'route_name', name: 'route_name'},
+                    {data: 'permissions', name: 'permissions'},
                     {data: 'icon', name: 'icon', orderable: false, searchable: false},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false},
                 ]
@@ -141,10 +163,11 @@
                             timer: 2000
                         });
                         $('.invalid-feedback').removeClass('d-block').addClass('d-none');
-                        $('input').addClass('is-invalid');
+                        $('input').removeClass('is-invalid');
                         $.each(error.responseJSON, function(i, error){
                             $('#alert-'+i).addClass('d-block').removeClass('d-none').html(error[0]);
                             $('input[name="'+i+'"]').addClass('is-invalid');
+                            $('input:checkbox[name="'+i+'[]"]').addClass('is-invalid');
                         });
                     }
                 });
@@ -153,7 +176,7 @@
             // edit menu
             $('body').on('click', '#btn-edit', function(){
                 let id        = $(this).data('id');
-                let editURL   = "{{ route('menus.edit', ":id") }}";
+                let editURL   = "{{ route('menus.show', ":id") }}";
                 editURL       = editURL.replace(':id', id);
                 $.ajax({
                     url: editURL,
@@ -175,7 +198,10 @@
                         $('#code').val(response.data.code);
                         $('#name').val(response.data.name);
                         $('#icon').val(response.data.icon);
-                        $('#modul-id option[value="'+response.data.modul_id+'"]').attr('selected', 'selected').change();
+                        $('#route-name').val(response.data.route_name);
+                        $.each(response.permissions, function(i, permission){
+                            $('input:checkbox[value="'+permission+'"]').prop('checked', true);
+                        });
                         $('#cancel').removeClass('d-none');
                         $('#store').val('edit');
                         $('html,body').animate({scrollTop: $("#form").offset().top},'fast');

@@ -36,7 +36,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['prefix' => 'users'], function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');
         Route::post('/store', [UserController::class, 'store'])->name('users.store');
-        Route::get('/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::get('/{user}/show', [UserController::class, 'show'])->name('users.show');
         Route::patch('/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
@@ -45,7 +45,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['prefix' => 'menus'], function () {
         Route::get('/', [MenuController::class, 'index'])->name('menus.index');
         Route::post('/store', [MenuController::class, 'store'])->name('menus.store');
-        Route::get('/{menu}/edit', [MenuController::class, 'edit'])->name('menus.edit');
+        Route::get('/{menu}/show', [MenuController::class, 'show'])->name('menus.show');
         Route::patch('/{menu}', [MenuController::class, 'update'])->name('menus.update');
         Route::delete('/{menu}', [MenuController::class, 'destroy'])->name('menus.destroy');
     });
@@ -54,7 +54,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['prefix' => 'moduls'], function () {
         Route::get('/', [ModulController::class, 'index'])->name('moduls.index');
         Route::post('/store', [ModulController::class, 'store'])->name('moduls.store');
-        Route::get('/{modul}/edit', [ModulController::class, 'edit'])->name('moduls.edit');
+        Route::get('/{modul}/show', [ModulController::class, 'show'])->name('moduls.show');
         Route::patch('/{modul}', [ModulController::class, 'update'])->name('moduls.update');
         Route::delete('/{modul}', [ModulController::class, 'destroy'])->name('moduls.destroy');
     });
@@ -63,7 +63,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['prefix' => 'packages'], function () {
         Route::get('/', [PackageController::class, 'index'])->name('packages.index');
         Route::post('/store', [PackageController::class, 'store'])->name('packages.store');
-        Route::get('/{package}/edit', [PackageController::class, 'edit'])->name('packages.edit');
+        Route::get('/{package}/show', [PackageController::class, 'show'])->name('packages.show');
         Route::patch('/{package}', [PackageController::class, 'update'])->name('packages.update');
         Route::delete('/{package}', [PackageController::class, 'destroy'])->name('packages.destroy');
     });
@@ -71,10 +71,11 @@ Route::group(['middleware' => 'auth'], function () {
     // permission
     Route::group(['prefix' => 'permission'], function () {
         Route::get('/', [PermissionController::class, 'index'])->name('permissions.index');
-        Route::get('/get-users', [PermissionController::class, 'getUsers'])->name('permissions.getusers');
         Route::post('/store', [PermissionController::class, 'store'])->name('permissions.store');
-        Route::get('/{permission}/edit', [PermissionController::class, 'edit'])->name('permissions.edit');
+        Route::get('/{permission}/show', [PermissionController::class, 'show'])->name('permissions.show');
         Route::patch('/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
         Route::delete('/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
     });
+
+    Route::get('/testing', [PackageController::class, 'info']);
 });

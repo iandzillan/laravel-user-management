@@ -111,6 +111,7 @@
             let table = $('#data-users').DataTable({
                 processing: true,
                 serverSide: true,
+                fixedColumns: true,
                 initComplete: function (settings, json) {  
                     $("#data-users").wrap("<div style='overflow:auto; width:100%; position:relative;'></div>");            
                 },
@@ -197,7 +198,7 @@
             // edit user
             $('body').on('click', '#btn-edit', function(){
                 let id        = $(this).data('id');
-                let editURL   = "{{ route('users.edit', ":id") }}";
+                let editURL   = "{{ route('users.show', ":id") }}";
                 editURL       = editURL.replace(':id', id);
                 $.ajax({
                     url: editURL,

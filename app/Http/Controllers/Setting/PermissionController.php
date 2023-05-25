@@ -3,57 +3,92 @@
 namespace App\Http\Controllers\Setting;
 
 use App\Http\Controllers\Controller;
-use App\Models\Menu;
-use App\Models\Package;
-use App\Models\User;
+use App\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Yajra\DataTables\DataTables;
 
 class PermissionController extends Controller
 {
     public function index(Request $request)
     {
-        $packages   = Package::all();
-        $id_submenu = [];
-        foreach ($packages as $package) {
-            $submenus = $package->subMenus;
-            foreach ($submenus as $submenu) {
-                array_push($id_submenu, $submenu->id);
-            }
-            $menus = Menu::with('subMenus')->whereHas('subMenus', function ($q) use ($id_submenu) {
-                $q->whereIn('id', $id_submenu);
-            })->get();
+        $permissions   = Permission::all();
+
+        if ($request->ajax()) {
+            return DataTables::of($permissions)
+                ->addIndexColumn()
+                ->addColumn('actions', function ($row) {
+                    $btn = '<a class="btn btn-info btn-sm" id="btn-edit" title="Edit" data-id="' . $row->id . '"><i class="ti ti-edit"></i></a>';
+                    $btn = $btn . ' <a class="btn btn-danger btn-sm" id="btn-delete" title="Delete" data-id="' . $row->id . '"><i class="ti ti-trash"></i></a>';
+                    return $btn;
+                })
+                ->rawColumns(['actions'])
+                ->make(true);
         }
 
         return view('settings.permission.index', [
             'title'    => 'Permission',
             'name'     => Auth::user()->name,
-            'packages' => $packages,
-            'menus'    => $menus
         ]);
-    }
-
-    public function getUsers()
-    {
-        $users = User::all();
-        return response()->json($users);
     }
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id'    => 'required',
-            'package_id' => 'required',
+            'name' => 'required|unique:permissions',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
+
+        $permission = Permission::create([
+            'name' => ucfirst($request->name)
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data'    => $permission
+        ]);
     }
 
-    public function testing()
+    public function show(Permission $permission)
     {
+        return response()->json([
+            'success' => true,
+            'data'    => $permission
+        ]);
+    }
+
+    public function update(Request $request, Permission $permission)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', Rule::unique('permissions')->ignore($permission->id)],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $permission->update([
+            'name' => ucfirst($request->name)
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data'    => $permission
+        ]);
+    }
+
+    public function destroy(Permission $permission)
+    {
+        $permission->delete();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $permission
+        ]);
     }
 }

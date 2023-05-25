@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->char('code', 3)->unique();
             $table->string('name');
+            $table->string('route_name');
             $table->string('icon');
             $table->timestamps();
         });

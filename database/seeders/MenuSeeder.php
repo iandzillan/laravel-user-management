@@ -14,15 +14,17 @@ class MenuSeeder extends Seeder
     public function run(): void
     {
         Menu::create([
-            'code'     => 'U01',
-            'name'     => 'User',
-            'icon'     => 'user-cog'
+            'code'       => 'U01',
+            'name'       => 'User',
+            'icon'       => 'user-cog',
+            'route_name' => 'users.index'
         ]);
 
         Menu::create([
-            'code'     => 'U02',
-            'name'     => 'Permission',
-            'icon'     => 'user-shield'
+            'code'       => 'U02',
+            'name'       => 'Permission',
+            'icon'       => 'user-shield',
+            'route_name' => 'permissions.index',
         ]);
     }
 }

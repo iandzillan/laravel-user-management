@@ -7,13 +7,14 @@
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>{{ $title }}</title>
     <link rel="shortcut icon" href="favicon.ico" type="{{ asset('assets/images/logos/favicon.png') }}">
+    <script src="{{ asset('assets/libs/jquery/dist/jquery.min.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('assets/css/styles.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/icons/tabler-icons.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/dataTables.bootstrap5.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/sweetalert2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/select2-bootstrap-5-theme.min.css') }}">
-    <script src="{{ asset('assets/libs/jquery/dist/jquery.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('assets/libs/jstree/dist/themes/default/style.css') }}">
 </head>
 <body>
     {{-- Body Wrapper --}}
@@ -46,6 +47,7 @@
     <script src="{{ asset('assets/libs/jquery/dist/dataTables.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets/js/sweetalert2.all.min.js') }}"></script>
     <script src="{{ asset('assets/js/select2.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/jstree/dist/jstree.js') }}"></script>
     <script>
         $(document).ready(function(){
             $.ajaxSetup({

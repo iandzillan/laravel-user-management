@@ -20,20 +20,34 @@ class ModulController extends Controller
         if ($request->ajax()) {
             return DataTables::of($moduls)
                 ->addIndexColumn()
+                ->addColumn('menus', function ($row) {
+                    $list = '<ul>';
+                    foreach ($row->menus as $menu) {
+                        $list = $list . '<li><strong>' . $menu->name . '</strong></li>';
+                        $list = $list . '<ol>';
+                        foreach ($menu->permissions as $permission) {
+                            $list = $list . '<li>' . $permission->name . '</li>';
+                        }
+                        $list = $list . '</ol>';
+                    }
+                    $list = $list . '</ul>';
+
+                    return $list;
+                })
                 ->addColumn('actions', function ($row) {
                     $btn = '<a class="btn btn-primary btn-sm" id="btn-edit" data-id="' . $row->id . '" title="Edit"><i class="ti ti-edit"></i></a>';
-                    $btn = $btn . '<a class="btn btn-danger btn-sm" id="btn-delete" data-id="' . $row->id . '" title="Delete"><i class="ti ti-trash"></i></a>';
+                    $btn = $btn . ' <a class="btn btn-danger btn-sm" id="btn-delete" data-id="' . $row->id . '" title="Delete"><i class="ti ti-trash"></i></a>';
 
                     return $btn;
                 })
-                ->rawColumns(['icon', 'actions'])
+                ->rawColumns(['menus', 'icon', 'actions'])
                 ->make(true);
         }
 
         return view('settings.modul.index', [
             'title' => 'Modul Master Data',
             'name'  => Auth::user()->name,
-            'menus' => Menu::all()
+            'menus' => Menu::all()->sortBy('code')
         ]);
     }
 
@@ -66,7 +80,7 @@ class ModulController extends Controller
         ]);
     }
 
-    public function edit(Modul $modul)
+    public function show(Modul $modul)
     {
         return response()->json([
             'success' => true,

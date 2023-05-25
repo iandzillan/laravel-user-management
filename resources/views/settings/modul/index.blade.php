@@ -8,7 +8,7 @@
             <hr>
             <h6 class="fw-semibold mb-3">Form Modul</h6>
             <form action="{{ route('moduls.store') }}" method="post" id="form-modul">
-                <div class="row d-flex justify-content-start">
+                <div class="row d-flex justify-content-start mb-3">
                     <input type="hidden" name="id" id="id">
                     <div class="mb-3 col-lg-6 col-md-12">
                         <label for="code" class="form-label">Code</label>
@@ -26,22 +26,38 @@
                         <div class="invalid-feedback d-none" role="alert" id="alert-description"></div>
                     </div>
                     <label for="menu-id" class="form-label">Menu</label>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="col-lg-12 col-md-12">
-                                @forelse ($menus as $menu)
-                                    <div class="form-check form-check-inline">
-                                        <i class="ti ti-{{ $menu->icon }}"></i>
-                                        <input class="form-check-input" type="checkbox" id="menu-{{ $menu->id }}" name="menu_id[]" value="{{ $menu->id }}">
-                                        <label class="form-check-label" for="menu-{{ $menu->id }}">{{ $menu->name }}</label>
+                    <div class="invalid-feedback d-none" role="alert" id="alert-menu_id"></div>
+                    <div class="row d-flex justify-content-start">
+                        @forelse ($menus as $menu)
+                            <div class="mb-3 col-lg-4 col-md-6">
+                                <div class="accordion">
+                                    <div class="accordion-item">
+                                        <div class="accordion-header d-flex align-items-center" style="column-gap: 1rem; padding-left: 1rem">
+                                            <input type="checkbox" class="form-check-input" name="menu_id[]" id="menu-id" value="{{ $menu->id }}">
+                                            <button class="accordion-button" style="background: none; padding-left: 0" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-{{ $menu->code }}">
+                                                {{ $menu->code }} - <i class="ti ti-{{ $menu->icon }}"></i> &nbsp; {{ $menu->name }}
+                                            </button>
+                                        </div>
+                                        <div id="panelsStayOpen-{{ $menu->code }}" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
+                                                <strong>Permissions:</strong>
+                                                <ul>
+                                                    @forelse ($menu->permissions as $permission)
+                                                        <li>{{ $permission->name }}</li>
+                                                    @empty
+                                                        <p>No data...</p>
+                                                    @endforelse
+                                                </ul>
+                                            </div>
+                                        </div>
                                     </div>
-                                @empty
-                                    <p class="text-center">No data...</p>
-                                @endforelse
+                                </div>
                             </div>
-                            <div class="invalid-feedback d-none" role="alert" id="alert-menu_id"></div>
-                        </div>
+                        @empty
+                            <p>No data...</p>
+                        @endforelse
                     </div>
+                    <div class="invalid-feedback d-none" role="alert" id="alert-menu_id"></div>
                 </div>
                 <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
                 <button type="reset" class="btn btn-danger d-none" id="cancel" value="cancel">Cancel</button>
@@ -60,7 +76,7 @@
                             <th>Code</th>
                             <th>Modul</th>
                             <th>Description</th>
-                            <th>Count Menu</th>
+                            <th>Menus</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -75,6 +91,7 @@
             table = $('#data-modul').DataTable({
                 processing: true,
                 serverSide: true,
+                fixedColumns: true,
                 initComplete: function (settings, json) {  
                     $("#data-modul").wrap("<div style='overflow:auto; width:100%; position:relative;'></div>");            
                 },
@@ -84,7 +101,7 @@
                     {data: 'code', name: 'code'},
                     {data: 'name', name: 'name'},
                     {data: 'description', name: 'description', orderable: false},
-                    {data: 'menus_count', name: 'menus_count'},
+                    {data: 'menus', name: 'menus'},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false},
                 ]
             });
@@ -167,7 +184,7 @@
             $('body').on('click', '#btn-edit', function(){
                 let id, editURL;
                 id      = $(this).data('id');
-                editURL = "{{ route('moduls.edit', ":id") }}";
+                editURL = "{{ route('moduls.show', ":id") }}";
                 editURL = editURL.replace(':id', id);
                 $.ajax({
                     url: editURL,

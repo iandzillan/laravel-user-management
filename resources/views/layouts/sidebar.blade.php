@@ -35,6 +35,14 @@
                     <span class="hide-menu">Settings</span>
                 </li>
                 <li class="sidebar-item">
+                    <a href="{{ route('permissions.index') }}" class="sidebar-link" aria-expanded="false">
+                        <span>
+                            <i class="ti ti-fingerprint"></i>
+                        </span>
+                        <span class="hide-menu">Permission</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
                     <a href="{{ route('menus.index') }}" class="sidebar-link" aria-expanded="false">
                         <span>
                             <i class="ti ti-folders"></i>
@@ -64,14 +72,6 @@
                             <i class="ti ti-user-cog"></i>
                         </span>
                         <span class="hide-menu">User</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="{{ route('permissions.index') }}" class="sidebar-link" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-fingerprint"></i>
-                        </span>
-                        <span class="hide-menu">Permission</span>
                     </a>
                 </li>
             </ul>
