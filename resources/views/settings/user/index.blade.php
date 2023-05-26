@@ -36,45 +36,9 @@
                         <div class="invalid-feedback d-none" role="alert" id="alert-password_confirmation"></div>
                     </div>
                     <div class="mb-3 col-lg-12 col-md-12">
-                        <label class="form-label">Package</label>
+                        <label for="package-id" class="form-label">Package</label>
+                        <select name="package_id" id="package-id" class="form-select"></select>
                         <div class="invalid-feedback d-none" role="alert" id="alert-package_id"></div>
-                        <div class="row d-flex justify-content-start">
-                            @forelse ($packages as $package)
-                                <div class="mb-3 col-lg-4 col-md-6">
-                                    <div class="accordion">
-                                        <div class="accordion-item">
-                                            <div class="accordion-header d-flex align-items-center" style="column-gap: 1rem; padding-left: 1rem">
-                                                <input type="checkbox" class="form-check-input" name="package_id[]" id="package-id" value="{{ $package->id }}">
-                                                <button class="accordion-button" style="background: none; padding-left: 0" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-{{ $package->code }}">
-                                                {{ $package->code }} - {{ $package->name }}
-                                            </button>
-                                            </div>
-                                            <div id="panelsStayOpen-{{ $package->code }}" class="accordion-collapse collapse show">
-                                                <div class="accordion-body">
-                                                    <strong>Modul:</strong>
-                                                    <ul>
-                                                        @forelse ($package->moduls->sortBy('code') as $modul)
-                                                            <li>{{ $modul->code }} - {{ $modul->name }}</li>
-                                                            <ul>
-                                                                @forelse ($modul->menus->sortBy('code') as $menu)
-                                                                    <li class="mx-3">{{ $menu->code }} - <i class="ti ti-{{ $menu->icon }}"></i> {{ $menu->name }}</li>
-                                                                @empty
-                                                                    <p class="text-center">No data...</p>
-                                                                @endforelse
-                                                            </ul>
-                                                        @empty
-                                                            <p class="text-center">No data...</p>
-                                                        @endforelse
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @empty
-                                <p class="text-center">No data...</p>
-                            @endforelse
-                        </div>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
@@ -104,6 +68,40 @@
         </div>
     </div>
 
+    {{-- Modal --}}
+    <div class="modal fade" id="modal-info" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table" id="table-info">
+                            <tr>
+                                <td>User</td>
+                                <td>:</td>
+                                <td id="user-name"></td>
+                            </tr>
+                            <tr>
+                                <td>Email</td>
+                                <td>:</td>
+                                <td id="user-email"></td>
+                            </tr>
+                            <tr>
+                                <td>Detail Access</td>
+                                <td>:</td>
+                                <td id="package-tree">
+                                    <div id="detail-package"></div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modal-close">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Script --}}
     <script>
         $(document).ready(function(){
@@ -121,9 +119,17 @@
                     {data: 'name', name: 'name'},
                     {data: 'username', name: 'username'},
                     {data: 'email', name: 'email'},
-                    {data: 'packages', name: 'packages'},
+                    {data: 'package', name: 'package'},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false},
                 ]
+            });
+
+            // get packages
+            $.get("{{ route('users.getpackages') }}", function(response){
+                $('#package-id').append('<option selected disabled> -- Choose --</option>');
+                $.each(response, function(i, package){
+                    $('#package-id').append('<option value="'+package.id+'">'+package.code+' - '+package.name+'</option>');
+                });
             });
 
             // store user
@@ -175,6 +181,14 @@
                         $('#store').val('store');
                         $('#cancel').addClass('d-none');
                         $('html,body').animate({scrollTop: $("#table-user").offset().top},'fast');
+                        // get packages
+                        $.get("{{ route('users.getpackages') }}", function(response){
+                            $('#package-id').empty();
+                            $('#package-id').append('<option selected disabled> -- Choose --</option>');
+                            $.each(response, function(i, package){
+                                $('#package-id').append('<option value="'+package.id+'">'+package.code+' - '+package.name+'</option>');
+                            });
+                        });
                         table.draw();
                     }, error: function(error){
                         swal.fire({
@@ -221,12 +235,16 @@
                         $('#name').val(response.data.name);
                         $('#username').val(response.data.username);
                         $('#email').val(response.data.email);
-                        $.each(response.packages, function(i, package){
-                            $('input:checkbox[value="'+package+'"]').prop('checked', true);
-                        });
+                        if (response.package === null) {
+                            $('#package-id').val();
+                        } else {
+                            $('#package-id').val(response.package).prop('selected', true).change();
+                        }
                         $('#cancel').removeClass('d-none');
                         $('#store').val('edit');
                         $('html,body').animate({scrollTop: $("#form").offset().top},'fast');
+                    }, error: function(error){
+                        console.log(error.responseJSON.message);
                     }
                 });
             });
@@ -248,6 +266,14 @@
                 $(this).addClass('d-none');
                 $('.invalid-feedback').removeClass('d-block');
                 $('input').removeClass('is-invalid');
+                // get packages
+                $.get("{{ route('users.getpackages') }}", function(response){
+                    $('#package-id').empty();
+                    $('#package-id').append('<option selected disabled> -- Choose --</option>');
+                    $.each(response, function(i, package){
+                        $('#package-id').append('<option value="'+package.id+'">'+package.code+' - '+package.name+'</option>');
+                    });
+                });
             });
 
             // delete user
@@ -294,6 +320,20 @@
                             }
                         });
                     }
+                });
+            });
+
+            // info button
+            $('body').on('click', '#btn-info', function(){
+                let id, url, data; 
+                id  = $(this).data('id');
+                url = "{{ route('users.show', ":id") }}";
+                url = url.replace(':id', id);
+                $.get(url, function(response){
+                    $('#user-name').html(response.data.name);
+                    $('#user-email').html(response.data.email);
+                    $('#detail-package').jstree('destroy').append(response.info).jstree();
+                    $('#modal-info').modal('show');
                 });
             });
         });

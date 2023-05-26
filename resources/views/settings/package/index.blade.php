@@ -28,6 +28,7 @@
                     <div class="invalid-feedback d-none" role="alert" id="alert-description"></div>
                 </div>
                 <label for="#" class="form-label">Modul</label>
+                <a href="#" id="btn-detail" class="mx-1"><i class="ti ti-info-circle"></i></a>
                 <div class="invalid-feedback d-none" role="alert" id="alert-modul_id"></div>
                 <div class="row d-flex justify-content-start">
                     @forelse ($moduls as $modul)
@@ -99,7 +100,7 @@
                                 <td id="package-code"></td>
                             </tr>
                             <tr>
-                                <td>Code</td>
+                                <td>Name</td>
                                 <td>:</td>
                                 <td id="package-name"></td>
                             </tr>
@@ -112,7 +113,7 @@
                                 <td>Detail Package</td>
                                 <td>:</td>
                                 <td>
-                                    <div class="detail-package"></div>
+                                    <div id="detail-package"></div>
                                 </td>
                             </tr>
                         </table>
@@ -332,12 +333,10 @@
                 url = "{{ route('packages.show', ":id") }}";
                 url = url.replace(':id', id);
                 $.get(url, function(response){
-                    console.log(response);
                     $('#package-code').html(response.package.code);
                     $('#package-name').html(response.package.name);
                     $('#package-desc').html(response.package.description);
-                    $('.detail-package').attr('id', 'tree');
-                    $('#tree').html(response.info).jstree();
+                    $('#detail-package').jstree('destroy').append(response.info).jstree();
                     $('#modal-info').modal('show');
                 });
             });

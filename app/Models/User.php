@@ -44,9 +44,9 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function packages()
+    public function package()
     {
-        return $this->belongsToMany(Package::class)->withTimestamps();
+        return $this->belongsTo(Package::class);
     }
 
     public function permissions()

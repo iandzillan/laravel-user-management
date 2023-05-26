@@ -31,9 +31,11 @@
                     </a>
                 </li>
 
+                
                 <li class="nav-small-cap">
                     <span class="hide-menu">Settings</span>
                 </li>
+                {{-- @can('viewAny', App\Models\Permission::class) --}}
                 <li class="sidebar-item">
                     <a href="{{ route('permissions.index') }}" class="sidebar-link" aria-expanded="false">
                         <span>
@@ -42,6 +44,7 @@
                         <span class="hide-menu">Permission</span>
                     </a>
                 </li>
+                {{-- @endcan --}}
                 <li class="sidebar-item">
                     <a href="{{ route('menus.index') }}" class="sidebar-link" aria-expanded="false">
                         <span>

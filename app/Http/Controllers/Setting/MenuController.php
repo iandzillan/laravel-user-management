@@ -15,7 +15,7 @@ class MenuController extends Controller
 {
     public function index(Request $request)
     {
-        $menus = Menu::latest()->get();
+        $menus = Menu::all()->sortBy('code');
 
         if ($request->ajax()) {
             return DataTables::of($menus)

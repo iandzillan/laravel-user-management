@@ -87,25 +87,29 @@ class PackageController extends Controller
             'success'  => true,
             'package'  => $package,
             'moduls'   => $package->moduls->pluck('id'),
-            // 'info'     => $this->info($package)
+            'info'     => $this->info($package)
         ]);
     }
 
-    public function info()
+    public function info(Package $package)
     {
-        $packages = Package::find([2, 3]);
-        $data = [];
-        foreach ($packages as $package) {
-            foreach ($package->moduls->sortBy('code') as $modul) {
-                foreach ($modul->menus->sortBy('code') as $menu) {
-                    foreach ($menu->permissions as $permission) {
-                        $data[] = [
-                            'id'     => $loop->iteration,
-                        ];
-                    }
+        $list = '<ul>';
+        foreach ($package->moduls->sortBy('code') as $modul) {
+            $list = $list . '<li data-jstree=\'{"opened": true, "icon": "ti ti-folder"}\'>' . $modul->name;
+            $list = $list . '<ul>';
+            foreach ($modul->menus->sortBy('code') as $menu) {
+                $list = $list . '<li data-jstree=\'{"opened": true, "icon": "ti ti-' . $menu->icon . '"}\'>' . $menu->name;
+                $list = $list . '<ul>';
+                foreach ($menu->permissions as $permission) {
+                    $list = $list . '<li data-jstree=\'{"opened": true, "icon": "ti ti-fingerprint"}\'>' . $permission->name . '</li>';
                 }
+                $list = $list . '</ul></li>';
             }
+            $list = $list . '</ul></li>';
         }
+        $list = $list . '</ul>';
+
+        return $list;
     }
 
     public function update(Request $request, Package $package)

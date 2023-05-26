@@ -21,23 +21,12 @@ class UserController extends Controller
         if ($request->ajax()) {
             return DataTables::of($users)
                 ->addIndexColumn()
-                ->addColumn('packages', function ($row) {
-                    $list = '<ul>';
-                    foreach ($row->packages as $package) {
-                        $list = $list . '<li><strong>' . $package->name . '</strong></li>';
-                        $list = $list . '<ol>';
-                        foreach ($package->moduls as $modul) {
-                            $list = $list . '<li>' . $modul->name . '</li>';
-                            $list = $list . '<ul>';
-                            foreach ($modul->menus as $menu) {
-                                $list = $list . '<li class="mx-1"> <i class="ti ti-' . $menu->icon . '"></i> ' . $menu->name . '</li>';
-                            }
-                            $list = $list . '</ul>';
-                        }
-                        $list = $list . '</ol>';
+                ->addColumn('package', function ($row) {
+                    if ($row->package_id === null) {
+                        return "--";
+                    } else {
+                        return $row->package->name;
                     }
-                    $list = $list . '</ul>';
-                    return $list;
                 })
                 ->addColumn('actions', function ($row) {
                     $btn = '<a class="btn btn-info btn-sm" data-id="' . $row->id . '" title="Edit" id="btn-edit"><i class="ti ti-edit"></i></a>';
@@ -56,6 +45,12 @@ class UserController extends Controller
         ]);
     }
 
+    public function getPackages()
+    {
+        $packages = Package::all();
+        return response()->json($packages);
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -65,21 +60,21 @@ class UserController extends Controller
             'password'   => 'required|confirmed',
             'package_id' => 'required'
         ], [
-            'package_id.required' => 'Please select at least one package'
+            'package_id.required' => 'Please choose the package'
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $packages       = Package::find($request->package_id);
+        $package       = Package::find($request->package_id);
         $user           = new User();
         $user->name     = ucwords($request->name);
         $user->email    = $request->email;
         $user->username = $request->username;
         $user->password = Hash::make($request->password);
+        $user->package()->associate($package);
         $user->save();
-        $user->packages()->toggle($packages);
 
 
         return response()->json([
@@ -90,11 +85,45 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        if ($user->package_id === null) {
+            $package = null;
+        } else {
+            $package = $user->package_id;
+        }
+
         return response()->json([
             'success'  => true,
             'data'     => $user,
-            'packages' => $user->packages->pluck('id')
+            'package'  => $package,
+            'info'     => $this->info($user)
         ]);
+    }
+
+    public function info(User $user)
+    {
+        if ($user->package_id === null) {
+            $list = null;
+        } else {
+            $list = '<ul>';
+            foreach ($user->package->moduls as $modul) {
+                $list = $list . '<li data-jstree=\'{"opened":true, "icon":"ti ti-folder"}\'>' . $modul->code . ' - ' . $modul->name;
+                $list = $list . '<ul>';
+                foreach ($modul->menus as $menu) {
+                    $list = $list . '<li data-jstree=\'{"opened":true, "icon":"ti ti-' . $menu->icon . '"}\'>' . $menu->code . ' - ' . $menu->name;
+                    $list = $list . '<ul>';
+                    foreach ($menu->permissions as $permission) {
+                        $list = $list . '<li data-jstree=\'{"opened":true, "icon":"ti ti-fingerprint"}\'>' . $permission->name . '</li>';
+                    }
+                    $list = $list . '</ul>';
+                }
+                $list = $list . '</ul>';
+                $list = $list . '</li>';
+            }
+            $list = $list . '</ul>';
+        }
+
+
+        return $list;
     }
 
     public function update(Request $request, User $user)
@@ -106,7 +135,7 @@ class UserController extends Controller
             'password'   => 'sometimes|confirmed',
             'package_id' => 'required'
         ], [
-            'package_id.required' => 'Please select at least one package'
+            'package_id.required' => 'Please choose the package'
         ]);
 
         if ($validator->fails()) {
@@ -117,13 +146,13 @@ class UserController extends Controller
             $user->password = Hash::make($request->password);
         }
 
-        $packages       = Package::find($request->package_id);
+        $package        = Package::find($request->package_id);
         $user->name     = ucwords($request->name);
         $user->email    = $request->email;
         $user->username = $request->username;
         $user->password = $user->password;
+        $user->package()->associate($package);
         $user->save();
-        $user->packages()->sync($packages);
 
         return response()->json([
             'success' => true,

@@ -7,6 +7,7 @@ use App\Http\Controllers\Setting\MenuController;
 use App\Http\Controllers\Setting\ModulController;
 use App\Http\Controllers\Setting\PackageController;
 use App\Http\Controllers\User\UserController;
+use App\Models\Permission;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,13 +33,13 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // user
-    Route::group(['prefix' => 'users'], function () {
-        Route::get('/', [UserController::class, 'index'])->name('users.index');
-        Route::post('/store', [UserController::class, 'store'])->name('users.store');
-        Route::get('/{user}/show', [UserController::class, 'show'])->name('users.show');
-        Route::patch('/{user}', [UserController::class, 'update'])->name('users.update');
-        Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    // permission
+    Route::group(['prefix' => 'permission'], function () {
+        Route::get('/', [PermissionController::class, 'index'])->name('permissions.index');
+        Route::post('/store', [PermissionController::class, 'store'])->name('permissions.store');
+        Route::get('/{permission}/show', [PermissionController::class, 'show'])->name('permissions.show');
+        Route::patch('/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
+        Route::delete('/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
     });
 
     // menu
@@ -68,14 +69,15 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('/{package}', [PackageController::class, 'destroy'])->name('packages.destroy');
     });
 
-    // permission
-    Route::group(['prefix' => 'permission'], function () {
-        Route::get('/', [PermissionController::class, 'index'])->name('permissions.index');
-        Route::post('/store', [PermissionController::class, 'store'])->name('permissions.store');
-        Route::get('/{permission}/show', [PermissionController::class, 'show'])->name('permissions.show');
-        Route::patch('/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
-        Route::delete('/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
+    // user
+    Route::group(['prefix' => 'users'], function () {
+        Route::get('/', [UserController::class, 'index'])->name('users.index');
+        Route::get('/get-packages', [UserController::class, 'getPackages'])->name('users.getpackages');
+        Route::post('/store', [UserController::class, 'store'])->name('users.store');
+        Route::get('/{user}/show', [UserController::class, 'show'])->name('users.show');
+        Route::patch('/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
-    Route::get('/testing', [PackageController::class, 'info']);
+    Route::get('/testing', [UserController::class, 'testing']);
 });

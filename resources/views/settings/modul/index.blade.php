@@ -41,13 +41,13 @@
                                         <div id="panelsStayOpen-{{ $menu->code }}" class="accordion-collapse collapse show">
                                             <div class="accordion-body">
                                                 <strong>Permissions:</strong>
-                                                <ul>
+                                                <ol>
                                                     @forelse ($menu->permissions as $permission)
                                                         <li>{{ $permission->name }}</li>
                                                     @empty
                                                         <p>No data...</p>
                                                     @endforelse
-                                                </ul>
+                                                </ol>
                                             </div>
                                         </div>
                                     </div>
@@ -85,9 +85,49 @@
         </div>
     </div>
 
+    {{-- Modal --}}
+    <div class="modal fade" id="modal-info" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table" id="table-info">
+                            <tr>
+                                <td>Code</td>
+                                <td>:</td>
+                                <td id="modul-code"></td>
+                            </tr>
+                            <tr>
+                                <td>Name</td>
+                                <td>:</td>
+                                <td id="modul-name"></td>
+                            </tr>
+                            <tr>
+                                <td>Description</td>
+                                <td>:</td>
+                                <td id="modul-desc"></td>
+                            </tr>
+                            <tr>
+                                <td>Detail Modul</td>
+                                <td>:</td>
+                                <td>
+                                    <div id="detail-modul"></div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modal-close">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         $(document).ready(function(){
             let table;
+            // draw table
             table = $('#data-modul').DataTable({
                 processing: true,
                 serverSide: true,
@@ -279,6 +319,22 @@
                             }
                         });
                     }
+                });
+            });
+
+            // btn-info
+            // info button
+            $('body').on('click', '#btn-info', function(){
+                let id, url, data; 
+                id  = $(this).data('id');
+                url = "{{ route('moduls.show', ":id") }}";
+                url = url.replace(':id', id);
+                $.get(url, function(response){
+                    $('#modul-code').html(response.data.code);
+                    $('#modul-name').html(response.data.name);
+                    $('#modul-desc').html(response.data.description);
+                    $('#detail-modul').jstree('destroy').append(response.info).jstree();
+                    $('#modal-info').modal('show');
                 });
             });
         });

@@ -22,13 +22,8 @@ class ModulController extends Controller
                 ->addIndexColumn()
                 ->addColumn('menus', function ($row) {
                     $list = '<ul>';
-                    foreach ($row->menus as $menu) {
-                        $list = $list . '<li><strong>' . $menu->name . '</strong></li>';
-                        $list = $list . '<ol>';
-                        foreach ($menu->permissions as $permission) {
-                            $list = $list . '<li>' . $permission->name . '</li>';
-                        }
-                        $list = $list . '</ol>';
+                    foreach ($row->menus->sortBy('code') as $menu) {
+                        $list = $list . '<li> ' . $menu->code . ' - <i class="ti ti-' . $menu->icon . '"></i> ' . $menu->name . '</li>';
                     }
                     $list = $list . '</ul>';
 
@@ -36,6 +31,7 @@ class ModulController extends Controller
                 })
                 ->addColumn('actions', function ($row) {
                     $btn = '<a class="btn btn-primary btn-sm" id="btn-edit" data-id="' . $row->id . '" title="Edit"><i class="ti ti-edit"></i></a>';
+                    $btn = $btn . ' <a class="btn btn-success btn-sm" id="btn-info" data-id="' . $row->id . '" title="Detail"><i class="ti ti-info-circle"></i></a>';
                     $btn = $btn . ' <a class="btn btn-danger btn-sm" id="btn-delete" data-id="' . $row->id . '" title="Delete"><i class="ti ti-trash"></i></a>';
 
                     return $btn;
@@ -85,8 +81,26 @@ class ModulController extends Controller
         return response()->json([
             'success' => true,
             'data'    => $modul,
-            'menus'   => $modul->menus->pluck('id')
+            'menus'   => $modul->menus->pluck('id'),
+            'info'    => $this->info($modul)
         ]);
+    }
+
+    public function info(Modul $modul)
+    {
+        $list = '<ul>';
+        foreach ($modul->menus as $menu) {
+            $list = $list . '<li data-jstree=\'{"opened": true, "icon": "ti ti-' . $menu->icon . '"}\'>' . $menu->name;
+            $list = $list . '<ul>';
+            foreach ($menu->permissions as $permission) {
+                $list = $list . '<li data-jstree=\'{"opened": true, "icon": "ti ti-fingerprint"}\'>' . $permission->name . '</li>';
+            }
+            $list = $list . '</ul>';
+            $list = $list . '</li>';
+        }
+        $list = $list . '</ul>';
+
+        return $list;
     }
 
     public function update(Request $request, Modul $modul)

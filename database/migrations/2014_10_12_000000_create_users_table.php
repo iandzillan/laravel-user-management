@@ -18,8 +18,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->unsignedBigInteger('package_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
+
+            $table->foreign('package_id')->references('id')->on('packages')->onDelete('cascade');
         });
     }
 
