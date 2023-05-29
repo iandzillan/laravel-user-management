@@ -2,10 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\Permission;
+use Illuminate\Auth\Access\Response;
+use App\Models\Modul;
 use App\Models\User;
 
-class PermissionPolicy
+class ModulPolicy
 {
     /**
      * Determine the permission of authenticated user
@@ -15,7 +16,7 @@ class PermissionPolicy
         $user_permission = [];
 
         foreach ($user->package->moduls as $modul) {
-            foreach ($modul->menus->where('name', 'Permission') as $menu) {
+            foreach ($modul->menus->where('name', 'Modul') as $menu) {
                 foreach ($menu->permissions as $permission) {
                     $user_permission[] = $permission->name;
                 }
@@ -23,6 +24,17 @@ class PermissionPolicy
         }
 
         return $user_permission;
+    }
+
+    public function access(User $user)
+    {
+        $user_access = [];
+
+        foreach ($user->package->moduls as $modul) {
+            $user_access[] = $modul->id;
+        }
+
+        return $user_access;
     }
 
     /**
@@ -36,9 +48,9 @@ class PermissionPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Permission $permission)
+    public function view(User $user, Modul $modul)
     {
-        //
+        return in_array('View', $this->permission($user)) || in_array($modul->id, $this->access($user));
     }
 
     /**
@@ -52,9 +64,9 @@ class PermissionPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user)
+    public function update(User $user, Modul $modul)
     {
-        return in_array('Update', $this->permission($user));
+        return in_array('Update', $this->permission($user)) || in_array($modul->id, $this->access($user));
     }
 
     /**
@@ -68,7 +80,7 @@ class PermissionPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Permission $permission)
+    public function restore(User $user, Modul $modul)
     {
         //
     }
@@ -76,7 +88,7 @@ class PermissionPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Permission $permission)
+    public function forceDelete(User $user, Modul $modul)
     {
         //
     }

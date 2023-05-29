@@ -15,8 +15,10 @@ class ModulController extends Controller
 {
     public function index(Request $request)
     {
-        $moduls = Modul::withCount('menus')->latest()->get();
+        $this->authorize('viewAny', Modul::class);
 
+        $moduls = Modul::withCount('menus')->latest()->get();
+        $user   = $request->user();
         if ($request->ajax()) {
             return DataTables::of($moduls)
                 ->addIndexColumn()
@@ -29,12 +31,21 @@ class ModulController extends Controller
 
                     return $list;
                 })
-                ->addColumn('actions', function ($row) {
-                    $btn = '<a class="btn btn-primary btn-sm" id="btn-edit" data-id="' . $row->id . '" title="Edit"><i class="ti ti-edit"></i></a>';
-                    $btn = $btn . ' <a class="btn btn-success btn-sm" id="btn-info" data-id="' . $row->id . '" title="Detail"><i class="ti ti-info-circle"></i></a>';
-                    $btn = $btn . ' <a class="btn btn-danger btn-sm" id="btn-delete" data-id="' . $row->id . '" title="Delete"><i class="ti ti-trash"></i></a>';
+                ->addColumn('actions', function ($row) use ($user) {
+                    $btn_edit   = '';
+                    $btn_info   = '';
+                    $btn_delete = '';
+                    if ($user->can('update_modul', $row)) {
+                        $btn_edit   = '<a class="btn btn-primary btn-sm" id="btn-edit" data-id="' . $row->id . '" title="Edit"><i class="ti ti-edit"></i></a>';
+                    }
+                    if ($user->can('info_modul', $row)) {
+                        $btn_info   = ' <a class="btn btn-success btn-sm" id="btn-info" data-id="' . $row->id . '" title="Detail"><i class="ti ti-info-circle"></i></a>';
+                    }
+                    if ($user->can('delete_modul', $row)) {
+                        $btn_delete = ' <a class="btn btn-danger btn-sm" id="btn-delete" data-id="' . $row->id . '" title="Delete"><i class="ti ti-trash"></i></a>';
+                    }
 
-                    return $btn;
+                    return $btn_edit . $btn_info . $btn_delete;
                 })
                 ->rawColumns(['menus', 'icon', 'actions'])
                 ->make(true);
@@ -78,6 +89,8 @@ class ModulController extends Controller
 
     public function show(Modul $modul)
     {
+        $this->authorize('update', $modul);
+
         return response()->json([
             'success' => true,
             'data'    => $modul,
@@ -90,7 +103,7 @@ class ModulController extends Controller
     {
         $list = '<ul>';
         foreach ($modul->menus as $menu) {
-            $list = $list . '<li data-jstree=\'{"opened": true, "icon": "ti ti-' . $menu->icon . '"}\'>' . $menu->name;
+            $list = $list . '<li data-jstree=\'{"opened": true, "icon": "ti ti-' . $menu->icon . '"}\'>' . $menu->code . ' - ' . $menu->name;
             $list = $list . '<ul>';
             foreach ($menu->permissions as $permission) {
                 $list = $list . '<li data-jstree=\'{"opened": true, "icon": "ti ti-fingerprint"}\'>' . $permission->name . '</li>';

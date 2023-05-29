@@ -16,7 +16,7 @@
 
         <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
             <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
-                <span class="mx-1">{{ $name }}</span>
+                <span class="mx-1">{{ Auth::user()->name }}</span>
                 <li class="nav-item dropdown">
                     <a href="javascript:void(0)" class="nav-link nav-icon-hover" id="drop2" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="{{ asset('assets/images/profile/user-1.jpg') }}" alt="" width="35" height="35" class="rounded-circle">

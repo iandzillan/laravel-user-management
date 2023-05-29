@@ -2,26 +2,28 @@
 
 @section('content')
     {{-- Form --}}
-    <div class="card" id="form">
-        <div class="card-body">
-            <h5 class="card-title fw-semibold mb-4">Permission</h5>
-            <hr>
-            <h6 class="fw-semibold mb-3">Form Permission</h6>
-            <form action="{{ route('permissions.store') }}" method="post" id="form-permission">
-                <div class="row d-flex justify-content-start">
-                    <input type="hidden" name="id" id="id">
-                    <div class="col-lg-6 col-md-12 mb-3">
-                        <label for="name" class="form-label">Permission name</label>
-                        <code class="mx-2">*must be unique</code>
-                        <input type="text" name="name" id="name" class="form-control">
-                        <div class="invalid-feedback d-none" role="alert" id="alert-name"></div>
+    @can('create', App\Models\Permission::class)    
+        <div class="card" id="form">
+            <div class="card-body">
+                <h5 class="card-title fw-semibold mb-4">Permission</h5>
+                <hr>
+                <h6 class="fw-semibold mb-3">Form Permission</h6>
+                <form action="{{ route('permissions.store') }}" method="post" id="form-permission">
+                    <div class="row d-flex justify-content-start">
+                        <input type="hidden" name="id" id="id">
+                        <div class="col-lg-6 col-md-12 mb-3">
+                            <label for="name" class="form-label">Permission name</label>
+                            <code class="mx-2">*must be unique</code>
+                            <input type="text" name="name" id="name" class="form-control">
+                            <div class="invalid-feedback d-none" role="alert" id="alert-name"></div>
+                        </div>
                     </div>
-                </div>
-                <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
-                <button type="reset" class="btn btn-danger d-none" id="cancel">Cancel</button>
-            </form>
+                    <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
+                    <button type="reset" class="btn btn-danger d-none" id="cancel">Cancel</button>
+                </form>
+            </div>
         </div>
-    </div>
+    @endcan
 
     {{-- Data Tables --}}
     <div class="card" id="table-permission">
@@ -151,6 +153,8 @@
                         $('#cancel').removeClass('d-none');
                         $('#store').val('edit');
                         $('html,body').animate({scrollTop: $("#form").offset().top},'fast');
+                    }, error: function(error) {
+                        console.log(error.responseJSON.message);
                     }
                 });
             });

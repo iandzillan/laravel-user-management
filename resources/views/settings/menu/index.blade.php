@@ -1,62 +1,64 @@
 @extends('layouts.app')
 
 @section('content')
-    {{-- Form --}}
-    <div class="card" id="form">
-        <div class="card-body">
-            <h5 class="card-title fw-semibold mb-4">Menus</h5>
-            <hr>
-            <h6 class="fw-semibold mb-3">Form Menu</h6>
-            <form action="{{ route('menus.store') }}" method="post" id="form-menu">
-                <div class="row d-flex justify-content-start mb-3">
-                    <input type="hidden" name="id" id="id">
-                    <div class="mb-3 col-lg-6 col-md-12">
-                        <label for="code" class="form-label">Code</label>
-                        <div class="input-group">
-                            <input type="text" name="code" id="code" class="form-control" placeholder="Example: T01">
-                        </div>
-                        <div class="invalid-feedback d-none" role="alert" id="alert-code"></div>
-                    </div>
-                    <div class="mb-3 col-lg-6 col-md-12">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" name="name" id="name" class="form-control">
-                        <div class="invalid-feedback d-none" role="alert" id="alert-name"></div>
-                    </div>
-                    <div class="mb-3 col-lg-6 col-md-12">
-                        <label for="route-name" class="form-label">Route Name</label>
-                        <input type="text" name="route_name" id="route-name" class="form-control" placeholder="Example: users.index">
-                        <div class="invalid-feedback d-none" role="alert" id="alert-route_name"></div>
-                    </div>
-                    <div class="mb-3 col-lg-6 col-md-12">
-                        <label for="icon" class="form-label">Icon</label>
-                        <div class="input-group">
-                            <input type="text" name="icon" id="icon" class="form-control">
-                            <a href="https://tabler-icons.io/" target="_blank" class="btn btn-warning">
-                                <i class="ti ti-brand-codesandbox"></i>
-                            </a>
-                        </div>
-                        <span class="text-small text-warning">*Click the box to see icon references</span>
-                        <div class="invalid-feedback d-none" role="alert" id="alert-icon"></div>
-                    </div>
-                    <label for="permission-id" class="form-label">Permission</label>
-                    <div class="col-lg-12 col-md-12">
-                        @forelse ($permissions as $permission)
-                            <div class="form-check form-check-inline">
-                                <i class="ti ti-{{ $permission->icon }}"></i>
-                                <input class="form-check-input" type="checkbox" id="permission-{{ $permission->id }}" name="permission_id[]" value="{{ $permission->id }}">
-                                <label class="form-check-label" for="permission-{{ $permission->id }}">{{ $permission->name }}</label>
+    @can('create', App\Models\Menu::class)    
+        {{-- Form --}}
+        <div class="card" id="form">
+            <div class="card-body">
+                <h5 class="card-title fw-semibold mb-4">Menus</h5>
+                <hr>
+                <h6 class="fw-semibold mb-3">Form Menu</h6>
+                <form action="{{ route('menus.store') }}" method="post" id="form-menu">
+                    <div class="row d-flex justify-content-start mb-3">
+                        <input type="hidden" name="id" id="id">
+                        <div class="mb-3 col-lg-6 col-md-12">
+                            <label for="code" class="form-label">Code</label>
+                            <div class="input-group">
+                                <input type="text" name="code" id="code" class="form-control" placeholder="Example: T01">
                             </div>
-                        @empty
-                            <p class="text-center">No data...</p>
-                        @endforelse
-                        <div class="invalid-feedback d-none" role="alert" id="alert-permission_id"></div>
+                            <div class="invalid-feedback d-none" role="alert" id="alert-code"></div>
+                        </div>
+                        <div class="mb-3 col-lg-6 col-md-12">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" name="name" id="name" class="form-control">
+                            <div class="invalid-feedback d-none" role="alert" id="alert-name"></div>
+                        </div>
+                        <div class="mb-3 col-lg-6 col-md-12">
+                            <label for="route-name" class="form-label">Route Name</label>
+                            <input type="text" name="route_name" id="route-name" class="form-control" placeholder="Example: users.index">
+                            <div class="invalid-feedback d-none" role="alert" id="alert-route_name"></div>
+                        </div>
+                        <div class="mb-3 col-lg-6 col-md-12">
+                            <label for="icon" class="form-label">Icon</label>
+                            <div class="input-group">
+                                <input type="text" name="icon" id="icon" class="form-control">
+                                <a href="https://tabler-icons.io/" target="_blank" class="btn btn-warning">
+                                    <i class="ti ti-brand-codesandbox"></i>
+                                </a>
+                            </div>
+                            <span class="text-small text-warning">*Click the box to see icon references</span>
+                            <div class="invalid-feedback d-none" role="alert" id="alert-icon"></div>
+                        </div>
+                        <label for="permission-id" class="form-label">Permission</label>
+                        <div class="col-lg-12 col-md-12">
+                            @forelse ($permissions as $permission)
+                                <div class="form-check form-check-inline">
+                                    <i class="ti ti-{{ $permission->icon }}"></i>
+                                    <input class="form-check-input" type="checkbox" id="permission-{{ $permission->id }}" name="permission_id[]" value="{{ $permission->id }}">
+                                    <label class="form-check-label" for="permission-{{ $permission->id }}">{{ $permission->name }}</label>
+                                </div>
+                            @empty
+                                <p class="text-center">No data...</p>
+                            @endforelse
+                            <div class="invalid-feedback d-none" role="alert" id="alert-permission_id"></div>
+                        </div>
                     </div>
-                </div>
-                <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
-                <button type="reset" class="btn btn-danger d-none" id="cancel">Cancel</button>
-            </form>
+                    <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
+                    <button type="reset" class="btn btn-danger d-none" id="cancel">Cancel</button>
+                </form>
+            </div>
         </div>
-    </div>
+    @endcan
 
     {{-- Data Tables --}}
     <div class="card" id="table-menu">

@@ -253,6 +253,8 @@
                         $('#cancel').removeClass('d-none');
                         $('#store').val('edit');
                         $('html,body').animate({scrollTop: $("#form").offset().top},'fast');
+                    }, error:function(error){
+                        console.log(error.responseJSON.message);
                     }
                 });
             });
@@ -329,13 +331,27 @@
                 id  = $(this).data('id');
                 url = "{{ route('moduls.show', ":id") }}";
                 url = url.replace(':id', id);
-                $.get(url, function(response){
-                    $('#modul-code').html(response.data.code);
-                    $('#modul-name').html(response.data.name);
-                    $('#modul-desc').html(response.data.description);
-                    $('#detail-modul').jstree('destroy').append(response.info).jstree();
-                    $('#modal-info').modal('show');
+                $.ajax({
+                    url: url,
+                    type: 'get',
+                    cache: false,
+                    success: function(response){
+                        $('#modul-code').html(response.data.code);
+                        $('#modul-name').html(response.data.name);
+                        $('#modul-desc').html(response.data.description);
+                        $('#detail-modul').jstree('destroy').append(response.info).jstree();
+                        $('#modal-info').modal('show');
+                    }, error: function(error){
+                        console.log(error.responseJSON.message);
+                    }
                 });
+                // $.get(url, function(response){
+                //     $('#modul-code').html(response.data.code);
+                //     $('#modul-name').html(response.data.name);
+                //     $('#modul-desc').html(response.data.description);
+                //     $('#detail-modul').jstree('destroy').append(response.info).jstree();
+                //     $('#modal-info').modal('show');
+                // });
             });
         });
     </script>

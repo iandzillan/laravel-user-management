@@ -95,10 +95,10 @@ class PackageController extends Controller
     {
         $list = '<ul>';
         foreach ($package->moduls->sortBy('code') as $modul) {
-            $list = $list . '<li data-jstree=\'{"opened": true, "icon": "ti ti-folder"}\'>' . $modul->name;
+            $list = $list . '<li data-jstree=\'{"opened": true, "icon": "ti ti-folder"}\'>' . $modul->code . ' - ' . $modul->name;
             $list = $list . '<ul>';
             foreach ($modul->menus->sortBy('code') as $menu) {
-                $list = $list . '<li data-jstree=\'{"opened": true, "icon": "ti ti-' . $menu->icon . '"}\'>' . $menu->name;
+                $list = $list . '<li data-jstree=\'{"opened": true, "icon": "ti ti-' . $menu->icon . '"}\'>' . $menu->code . ' - ' . $menu->name;
                 $list = $list . '<ul>';
                 foreach ($menu->permissions as $permission) {
                     $list = $list . '<li data-jstree=\'{"opened": true, "icon": "ti ti-fingerprint"}\'>' . $permission->name . '</li>';

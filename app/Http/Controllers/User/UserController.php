@@ -16,7 +16,11 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::latest()->get();
+        if (Auth::user()->email === 'admin@admin.com') {
+            $users = User::latest()->get();
+        } else {
+            $users = User::where('email', '!=', 'admin@admin.com')->latest()->get();
+        }
 
         if ($request->ajax()) {
             return DataTables::of($users)

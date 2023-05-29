@@ -14,16 +14,24 @@ class PermissionController extends Controller
 {
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Permission::class);
+        $this->authorize('viewAny', Permission::class);
+        $user = $request->user();
 
         $permissions   = Permission::all();
         if ($request->ajax()) {
             return DataTables::of($permissions)
                 ->addIndexColumn()
-                ->addColumn('actions', function ($row) {
-                    $btn = '<a class="btn btn-info btn-sm" id="btn-edit" title="Edit" data-id="' . $row->id . '"><i class="ti ti-edit"></i></a>';
-                    $btn = $btn . ' <a class="btn btn-danger btn-sm" id="btn-delete" title="Delete" data-id="' . $row->id . '"><i class="ti ti-trash"></i></a>';
-                    return $btn;
+                ->addColumn('actions', function ($row) use ($user) {
+                    $btn_edit   = '--';
+                    $btn_delete = null;
+                    if ($user->can('edit_permission')) {
+                        $btn_edit = '<a class="btn btn-info btn-sm" id="btn-edit" title="Edit" data-id="' . $row->id . '"><i class="ti ti-edit"></i></a>';
+                    }
+                    if ($user->can('delete_permission')) {
+                        $btn_delete = ' <a class="btn btn-danger btn-sm" id="btn-delete" title="Delete" data-id="' . $row->id . '"><i class="ti ti-trash"></i></a>';
+                    }
+
+                    return $btn_edit . $btn_delete;
                 })
                 ->rawColumns(['actions'])
                 ->make(true);
@@ -37,6 +45,8 @@ class PermissionController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Permission::class);
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:permissions',
         ]);
@@ -57,6 +67,8 @@ class PermissionController extends Controller
 
     public function show(Permission $permission)
     {
+        $this->authorize('update', $permission);
+
         return response()->json([
             'success' => true,
             'data'    => $permission
@@ -65,6 +77,8 @@ class PermissionController extends Controller
 
     public function update(Request $request, Permission $permission)
     {
+        $this->authorize('update', Permission::class);
+
         $validator = Validator::make($request->all(), [
             'name' => ['required', Rule::unique('permissions')->ignore($permission->id)],
         ]);
@@ -85,8 +99,9 @@ class PermissionController extends Controller
 
     public function destroy(Permission $permission)
     {
-        $permission->delete();
+        $this->authorize('delete', $permission);
 
+        $permission->delete();
         return response()->json([
             'success' => true,
             'data'    => $permission

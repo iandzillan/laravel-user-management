@@ -7,6 +7,7 @@ use App\Http\Controllers\Setting\MenuController;
 use App\Http\Controllers\Setting\ModulController;
 use App\Http\Controllers\Setting\PackageController;
 use App\Http\Controllers\User\UserController;
+use App\Models\Menu;
 use App\Models\Permission;
 use Illuminate\Support\Facades\Route;
 
@@ -31,24 +32,25 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
 Route::group(['middleware' => 'auth'], function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/testing', [MenuController::class, 'testing']);
 
     // permission
     Route::group(['prefix' => 'permission'], function () {
-        Route::get('/', [PermissionController::class, 'index'])->name('permissions.index');
-        Route::post('/store', [PermissionController::class, 'store'])->name('permissions.store');
-        Route::get('/{permission}/show', [PermissionController::class, 'show'])->name('permissions.show');
-        Route::patch('/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
-        Route::delete('/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
+        Route::get('/', [PermissionController::class, 'index'])->name('permissions.index')->can('viewAny', Permission::class);
+        Route::post('/store', [PermissionController::class, 'store'])->name('permissions.store')->can('create', Permission::class);
+        Route::get('/{permission}/show', [PermissionController::class, 'show'])->name('permissions.show')->can('update', Permission::class);
+        Route::patch('/{permission}', [PermissionController::class, 'update'])->name('permissions.update')->can('update', Permission::class);
+        Route::delete('/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy')->can('delete', Permission::class);
     });
 
     // menu
     Route::group(['prefix' => 'menus'], function () {
-        Route::get('/', [MenuController::class, 'index'])->name('menus.index');
-        Route::post('/store', [MenuController::class, 'store'])->name('menus.store');
-        Route::get('/{menu}/show', [MenuController::class, 'show'])->name('menus.show');
-        Route::patch('/{menu}', [MenuController::class, 'update'])->name('menus.update');
-        Route::delete('/{menu}', [MenuController::class, 'destroy'])->name('menus.destroy');
+        Route::get('/', [MenuController::class, 'index'])->name('menus.index')->can('viewAny', Menu::class);
+        Route::post('/store', [MenuController::class, 'store'])->name('menus.store')->can('create', Menu::class);
+        Route::get('/{menu}/show', [MenuController::class, 'show'])->name('menus.show')->can('update', Menu::class);
+        Route::patch('/{menu}', [MenuController::class, 'update'])->name('menus.update')->can('update', Menu::class);
+        Route::delete('/{menu}', [MenuController::class, 'destroy'])->name('menus.destroy')->can('delete', Menu::class);
     });
 
     // modul
@@ -78,6 +80,4 @@ Route::group(['middleware' => 'auth'], function () {
         Route::patch('/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
-
-    Route::get('/testing', [UserController::class, 'testing']);
 });

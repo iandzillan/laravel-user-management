@@ -19,64 +19,21 @@
         {{-- Sidebar Navigation --}}
         <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
             <ul id="sidebarnav">
-                <li class="nav-small-cap">
-                    <span class="hide-menu">Home</span>
-                </li>
-                <li class="sidebar-item">
-                    <a href="{{ route('dashboard') }}" class="sidebar-link" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-layout-dashboard"></i>
-                        </span>
-                        <span class="hide-menu">Dashboard</span>
-                    </a>
-                </li>
-
-                
-                <li class="nav-small-cap">
-                    <span class="hide-menu">Settings</span>
-                </li>
-                {{-- @can('viewAny', App\Models\Permission::class) --}}
-                <li class="sidebar-item">
-                    <a href="{{ route('permissions.index') }}" class="sidebar-link" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-fingerprint"></i>
-                        </span>
-                        <span class="hide-menu">Permission</span>
-                    </a>
-                </li>
-                {{-- @endcan --}}
-                <li class="sidebar-item">
-                    <a href="{{ route('menus.index') }}" class="sidebar-link" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-folders"></i>
-                        </span>
-                        <span class="hide-menu">Menu</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="{{ route('moduls.index') }}" class="sidebar-link" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-folder"></i>
-                        </span>
-                        <span class="hide-menu">Modul</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="{{ route('packages.index') }}" class="sidebar-link" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-box"></i>
-                        </span>
-                        <span class="hide-menu">Package</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="{{ route('users.index') }}" class="sidebar-link" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-user-cog"></i>
-                        </span>
-                        <span class="hide-menu">User</span>
-                    </a>
-                </li>
+                @foreach (Auth::user()->package->moduls->sortBy('code') as $modul)
+                    <li class="nav-small-cap">
+                        <span class="hide-menu">{{ $modul->name }}</span>
+                    </li>
+                    @foreach ($modul->menus->sortBy('code') as $menu)
+                        <li class="sidebar-item">
+                            <a href="{{ route($menu->route_name) }}" class="sidebar-link" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-{{ $menu->icon }}"></i>
+                                </span>
+                                <span class="hide-menu">{{ $menu->name }}</span>
+                            </a>
+                        </li>
+                    @endforeach
+                @endforeach
             </ul>
         </nav>
         {{-- Sidebar Navigation End --}}

@@ -15,7 +15,17 @@ class MenuController extends Controller
 {
     public function index(Request $request)
     {
-        $menus = Menu::all()->sortBy('code');
+        $this->authorize('viewAny', Menu::class);
+
+        if (Auth::user()->email == 'admin@admin.com') {
+            $menus = Menu::all()->sortBy('code');
+        } else {
+            $menus = Menu::with('moduls', 'moduls.packages', 'moduls.packages.users')->whereHas('moduls.packages.users', function ($q) {
+                $q->where('id', Auth::user()->id);
+            })->get()->sortBy('code');
+        }
+
+        $user  = $request->user();
 
         if ($request->ajax()) {
             return DataTables::of($menus)
@@ -32,10 +42,16 @@ class MenuController extends Controller
 
                     return implode(', ', $data);
                 })
-                ->addColumn('actions', function ($row) {
-                    $btn = '<a class="btn btn-info btn-sm" id="btn-edit" data-id="' . $row->id . '" title="Edit"><i class="ti ti-edit"></i></a>';
-                    $btn = $btn . ' <a class="btn btn-danger btn-sm" id="btn-delete" data-id="' . $row->id . '" title="Delete"><i class="ti ti-trash"></i></a>';
-                    return $btn;
+                ->addColumn('actions', function ($row) use ($user) {
+                    $btn_edit   = '--';
+                    $btn_delete = '';
+                    if ($user->can('update_menu')) {
+                        $btn_edit = '<a class="btn btn-info btn-sm" id="btn-edit" data-id="' . $row->id . '" title="Edit"><i class="ti ti-edit"></i></a>';
+                    }
+                    if ($user->can('delete_menu')) {
+                        $btn_delete = ' <a class="btn btn-danger btn-sm" id="btn-delete" data-id="' . $row->id . '" title="Delete"><i class="ti ti-trash"></i></a>';
+                    }
+                    return $btn_edit . $btn_delete;
                 })
                 ->rawColumns(['icon', 'actions'])
                 ->make(true);
@@ -43,13 +59,14 @@ class MenuController extends Controller
 
         return view('settings.menu.index', [
             'title'       => 'Menu Master Data',
-            'name'        => Auth::user()->name,
             'permissions' => Permission::all()
         ]);
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Menu::class);
+
         $validator = Validator::make($request->all(), [
             'code'          => 'required|min:3|max:3|alpha_num|unique:menus',
             'name'          => 'required',
@@ -81,6 +98,8 @@ class MenuController extends Controller
 
     public function show(Menu $menu)
     {
+        $this->authorize('update', Menu::class);
+
         return response()->json([
             'success'     => true,
             'data'        => $menu,
@@ -90,6 +109,8 @@ class MenuController extends Controller
 
     public function update(Request $request, Menu $menu)
     {
+        $this->authorize('update', Menu::class);
+
         $validator = Validator::make($request->all(), [
             'code'          => ['required', 'min:3', 'max:3', 'alpha_num', Rule::unique('menus')->ignore($menu->id)],
             'name'          => 'required',
@@ -116,11 +137,21 @@ class MenuController extends Controller
 
     public function destroy(Menu $menu)
     {
-        $menu->delete();
+        $this->authorize('delete', Menu::class);
 
+        $menu->delete();
         return response()->json([
             'success' => true,
             'data'    => $menu
         ]);
+    }
+
+    public function testing()
+    {
+        $menu = Menu::with('moduls', 'moduls.packages', 'moduls.packages.users')->whereHas('moduls.packages.users', function ($q) {
+            $q->where('id', Auth::user()->id);
+        })->get()->sortBy('code');
+
+        dd($menu);
     }
 }
