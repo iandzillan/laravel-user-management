@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Permission;
 use App\Models\User;
+use Illuminate\Support\Facades\Route;
 
 class PermissionPolicy
 {
@@ -14,8 +15,8 @@ class PermissionPolicy
     {
         $user_permission = [];
 
-        foreach ($user->package->moduls as $modul) {
-            foreach ($modul->menus->where('name', 'Permission') as $menu) {
+        foreach ($user->modules as $modul) {
+            foreach ($modul->menus->where('route_name', 'permissions.index') as $menu) {
                 foreach ($menu->permissions as $permission) {
                     $user_permission[] = $permission->name;
                 }
@@ -30,7 +31,7 @@ class PermissionPolicy
      */
     public function viewAny(User $user)
     {
-        return in_array('ViewAny', $this->permission($user));
+        return in_array('viewAny', $this->permission($user));
     }
 
     /**
@@ -46,7 +47,7 @@ class PermissionPolicy
      */
     public function create(User $user)
     {
-        return in_array('Create', $this->permission($user));
+        return in_array('create', $this->permission($user));
     }
 
     /**
@@ -54,7 +55,7 @@ class PermissionPolicy
      */
     public function update(User $user)
     {
-        return in_array('Update', $this->permission($user));
+        return in_array('update', $this->permission($user));
     }
 
     /**
@@ -62,7 +63,7 @@ class PermissionPolicy
      */
     public function delete(User $user)
     {
-        return in_array('Delete', $this->permission($user));
+        return in_array('delete', $this->permission($user));
     }
 
     /**

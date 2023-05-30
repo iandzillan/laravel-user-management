@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('menu_id')->references('id')->on('menus')->onDelete('cascade');
-            $table->foreign('modul_id')->references('id')->on('moduls')->onDelete('cascade');
+            $table->foreign('modul_id')->references('id')->on('modules')->onDelete('cascade');
         });
     }
 

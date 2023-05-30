@@ -3,20 +3,20 @@
 namespace App\Policies;
 
 use Illuminate\Auth\Access\Response;
-use App\Models\Modul;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
-class ModulPolicy
+class UserPolicy
 {
     /**
-     * Determine the permission of authenticated user
+     * Get user permission from user menu.
      */
     public function permission(User $user)
     {
         $user_permission = [];
 
         foreach ($user->modules as $modul) {
-            foreach ($modul->menus->where('route_name', 'modules.index') as $menu) {
+            foreach ($modul->menus->where('route_name', 'users.index') as $menu) {
                 foreach ($menu->permissions as $permission) {
                     $user_permission[] = $permission->name;
                 }
@@ -37,7 +37,7 @@ class ModulPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Modul $modul)
+    public function view(User $user)
     {
         return in_array('view', $this->permission($user));
     }
@@ -53,7 +53,7 @@ class ModulPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Modul $modul)
+    public function update(User $user)
     {
         return in_array('update', $this->permission($user));
     }
@@ -61,7 +61,7 @@ class ModulPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Modul $modul)
+    public function delete(User $user)
     {
         return in_array('delete', $this->permission($user));
     }
@@ -69,7 +69,7 @@ class ModulPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Modul $modul)
+    public function restore(User $user, User $model)
     {
         //
     }
@@ -77,8 +77,16 @@ class ModulPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Modul $modul)
+    public function forceDelete(User $user, User $model)
     {
         //
+    }
+
+    /**
+     * Determine whether the user can set the modules of the model.
+     */
+    public function setModul(User $user)
+    {
+        return in_array('setModul', $this->permission($user));
     }
 }

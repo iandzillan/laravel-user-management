@@ -9,6 +9,8 @@ class Modul extends Model
 {
     use HasFactory;
 
+    protected $table = 'modules';
+
     protected $fillable = ['code', 'name', 'icon', 'description'];
 
     public function menus()
@@ -16,8 +18,23 @@ class Modul extends Model
         return $this->belongsToMany(Menu::class)->withTimestamps();
     }
 
-    public function packages()
+    public function users()
     {
-        return $this->belongsToMany(Package::class)->withTimestamps();
+        return $this->belongsToMany(User::class)->withTimestamps();
+    }
+
+    public function getCodeAttribute($value)
+    {
+        return strtoupper($value);
+    }
+
+    public function getNameAttribute($value)
+    {
+        return ucwords($value);
+    }
+
+    public function getDescriptionAttribute($value)
+    {
+        return ucfirst($value);
     }
 }

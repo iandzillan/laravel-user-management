@@ -18,11 +18,11 @@ class MenuController extends Controller
         $this->authorize('viewAny', Menu::class);
 
         if (Auth::user()->email == 'admin@admin.com') {
-            $menus = Menu::all()->sortBy('code');
+            $menus = Menu::all()->sortByDESC('sequence');
         } else {
-            $menus = Menu::with('moduls', 'moduls.packages', 'moduls.packages.users')->whereHas('moduls.packages.users', function ($q) {
-                $q->where('id', Auth::user()->id);
-            })->get()->sortBy('code');
+            $menus = Menu::with('modules', 'modules.users')->whereHas('modules.users', function ($q) {
+                $q->where('users.id', Auth::user()->id);
+            })->get()->sortBy('sequence');
         }
 
         $user  = $request->user();
@@ -43,15 +43,19 @@ class MenuController extends Controller
                     return implode(', ', $data);
                 })
                 ->addColumn('actions', function ($row) use ($user) {
-                    $btn_edit   = '--';
+                    $btn_edit   = '';
                     $btn_delete = '';
-                    if ($user->can('update_menu')) {
+                    $btn_link   = '';
+                    if ($user->can('update', Menu::class)) {
                         $btn_edit = '<a class="btn btn-info btn-sm" id="btn-edit" data-id="' . $row->id . '" title="Edit"><i class="ti ti-edit"></i></a>';
                     }
-                    if ($user->can('delete_menu')) {
+                    if ($user->can('delete', Menu::class)) {
                         $btn_delete = ' <a class="btn btn-danger btn-sm" id="btn-delete" data-id="' . $row->id . '" title="Delete"><i class="ti ti-trash"></i></a>';
                     }
-                    return $btn_edit . $btn_delete;
+                    if ($user->cannot('update', Menu::class) || $user->cannot('delete', Menu::class)) {
+                        $btn_link = ' <a class="btn btn-success btn-sm" href="' . route($row->route_name) . '"><i class="ti ti-door-enter"></i></a>';
+                    }
+                    return $btn_edit . $btn_delete . $btn_link;
                 })
                 ->rawColumns(['icon', 'actions'])
                 ->make(true);
@@ -69,6 +73,7 @@ class MenuController extends Controller
 
         $validator = Validator::make($request->all(), [
             'code'          => 'required|min:3|max:3|alpha_num|unique:menus',
+            'sequence'      => 'required|unique:menus|integer',
             'name'          => 'required',
             'icon'          => 'required',
             'route_name'    => 'required',
@@ -83,9 +88,10 @@ class MenuController extends Controller
 
         $permissions      = Permission::find($request->permission_id);
         $menu             = new Menu();
-        $menu->code       = strtoupper($request->code);
+        $menu->code       = $request->code;
+        $menu->sequence   = $request->sequence;
         $menu->icon       = $request->icon;
-        $menu->name       = ucwords($request->name);
+        $menu->name       = $request->name;
         $menu->route_name = strtolower($request->route_name);
         $menu->save();
         $menu->permissions()->toggle($permissions);
@@ -113,6 +119,7 @@ class MenuController extends Controller
 
         $validator = Validator::make($request->all(), [
             'code'          => ['required', 'min:3', 'max:3', 'alpha_num', Rule::unique('menus')->ignore($menu->id)],
+            'sequence'      => ['required', Rule::unique('menus')->ignore($menu->id), 'integer'],
             'name'          => 'required',
             'icon'          => 'required',
             'route_name'    => 'required',
@@ -121,10 +128,15 @@ class MenuController extends Controller
             'permission_id.required' => 'Please select at leats one permission'
         ]);
 
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
         $permissions      = Permission::find($request->permission_id);
-        $menu->code       = strtoupper($request->code);
+        $menu->code       = $request->code;
+        $menu->sequence   = $request->sequence;
         $menu->icon       = $request->icon;
-        $menu->name       = ucwords($request->name);
+        $menu->name       = $request->name;
         $menu->route_name = strtolower($request->route_name);
         $menu->save();
         $menu->permissions()->sync($permissions);

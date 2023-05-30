@@ -1,51 +1,86 @@
 @extends('layouts.app')
 
 @section('content')
-    {{-- Form --}}
-    <div class="card" id="form">
-        <div class="card-body">
-            <h5 class="card-title fw-semibold mb-4">Users</h5>
-            <hr>
-            <h6 class="fw-semibold mb-3">Form User</h6>
-            <form action="{{ route('users.store') }}" method="post" id="form-user">
-                <div class="row d-flex justify-content-start">
-                    <input type="hidden" name="id" id="id">
-                    <div class="mb-3 col-lg-6 col-md-12">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" name="name" id="name" class="form-control">
-                        <div class="invalid-feedback d-none" role="alert" id="alert-name"></div>
+    @can('create', App\Models\User::class)    
+        {{-- Form --}}
+        <div class="card" id="form">
+            <div class="card-body">
+                <h5 class="card-title fw-semibold mb-4">Users</h5>
+                <hr>
+                <h6 class="fw-semibold mb-3">Form User</h6>
+                <form action="{{ route('users.store') }}" method="post" id="form-user">
+                    <div class="row d-flex justify-content-start">
+                        <input type="hidden" name="id" id="id">
+                        <div class="mb-3 col-lg-6 col-md-12">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" name="name" id="name" class="form-control">
+                            <div class="invalid-feedback d-none" role="alert" id="alert-name"></div>
+                        </div>
+                        <div class="mb-3 col-lg-6 col-md-12">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" name="username" id="username" class="form-control">
+                            <div class="invalid-feedback d-none" role="alert" id="alert-username"></div>
+                        </div>
+                        <div class="mb-3 col-lg-12 col-md-12">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" name="email" id="email" class="form-control">
+                            <div class="invalid-feedback d-none" role="alert" id="alert-email"></div>
+                        </div>
+                        <div class="mb-3 col-lg-6 col-md-12">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" name="password" id="password" class="form-control">
+                            <div class="invalid-feedback d-none" role="alert" id="alert-password"></div>
+                        </div>
+                        <div class="mb-3 col-lg-6 col-md-12">
+                            <label for="password" class="form-label">Password Confirmation</label>
+                            <input type="password" name="password_confirmation" id="password_confirmation" class="form-control">
+                            <div class="invalid-feedback d-none" role="alert" id="alert-password_confirmation"></div>
+                        </div>
+
+                        @can('setModul', App\Models\User::class)    
+                            <label for="modul-id" class="form-label">Modul</label>
+                            <div class="invalid-feedback d-none" role="alert" id="alert-modul_id"></div>
+                            <div class="row d-flex justify-content-start">
+                                @forelse ($modules as $modul)
+                                    <div class="mb-3 col-lg-4 col-md-6">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" name="modul_id[]" id="modul-id" value="{{ $modul->id }}">
+                                            <div class="accordion" id="accordion-menu">
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header">
+                                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $modul->code }}">
+                                                            {{ $modul->code }} -&nbsp;{{ $modul->name }}
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapse-{{ $modul->code }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                                                        <div class="accordion-body">
+                                                            <strong>Menu:</strong>
+                                                            <ol>
+                                                                @forelse ($modul->menus->sortBy('sequence') as $menu)
+                                                                    <li>{{ $menu->code }} - <i class="ti ti-{{ $menu->icon }}"></i>&nbsp;{{ $menu->name }}</li>
+                                                                @empty
+                                                                    <p>No data...</p>
+                                                                @endforelse
+                                                            </ol>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <p>No data...</p>
+                                @endforelse
+                            </div>
+                        @endcan
+
                     </div>
-                    <div class="mb-3 col-lg-6 col-md-12">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" name="username" id="username" class="form-control">
-                        <div class="invalid-feedback d-none" role="alert" id="alert-username"></div>
-                    </div>
-                    <div class="mb-3 col-lg-12 col-md-12">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" name="email" id="email" class="form-control">
-                        <div class="invalid-feedback d-none" role="alert" id="alert-email"></div>
-                    </div>
-                    <div class="mb-3 col-lg-6 col-md-12">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" name="password" id="password" class="form-control">
-                        <div class="invalid-feedback d-none" role="alert" id="alert-password"></div>
-                    </div>
-                    <div class="mb-3 col-lg-6 col-md-12">
-                        <label for="password" class="form-label">Password Confirmation</label>
-                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control">
-                        <div class="invalid-feedback d-none" role="alert" id="alert-password_confirmation"></div>
-                    </div>
-                    <div class="mb-3 col-lg-12 col-md-12">
-                        <label for="package-id" class="form-label">Package</label>
-                        <select name="package_id" id="package-id" class="form-select"></select>
-                        <div class="invalid-feedback d-none" role="alert" id="alert-package_id"></div>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
-                <button type="reset" class="btn btn-danger d-none" id="cancel">Cancel</button>
-            </form>
+                    <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
+                    <button type="reset" class="btn btn-danger d-none" id="cancel">Cancel</button>
+                </form>
+            </div>
         </div>
-    </div>
+    @endcan
 
     {{-- Data Tables --}}
     <div class="card" id="table-user">
@@ -59,7 +94,7 @@
                             <th>Name</th>
                             <th>Username</th>
                             <th>Email</th>
-                            <th>Package</th>
+                            <th>Modules</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -109,7 +144,6 @@
             let table = $('#data-users').DataTable({
                 processing: true,
                 serverSide: true,
-                fixedColumns: true,
                 initComplete: function (settings, json) {  
                     $("#data-users").wrap("<div style='overflow:auto; width:100%; position:relative;'></div>");            
                 },
@@ -119,17 +153,9 @@
                     {data: 'name', name: 'name'},
                     {data: 'username', name: 'username'},
                     {data: 'email', name: 'email'},
-                    {data: 'package', name: 'package'},
-                    {data: 'actions', name: 'actions', orderable: false, searchable: false},
+                    {data: 'modules', name: 'modules'},
+                    {data: 'actions', name: 'actions', orderable: false, searchable: false, width: "12%"},
                 ]
-            });
-
-            // get packages
-            $.get("{{ route('users.getpackages') }}", function(response){
-                $('#package-id').append('<option selected disabled> -- Choose --</option>');
-                $.each(response, function(i, package){
-                    $('#package-id').append('<option value="'+package.id+'">'+package.code+' - '+package.name+'</option>');
-                });
             });
 
             // store user
@@ -181,16 +207,9 @@
                         $('#store').val('store');
                         $('#cancel').addClass('d-none');
                         $('html,body').animate({scrollTop: $("#table-user").offset().top},'fast');
-                        // get packages
-                        $.get("{{ route('users.getpackages') }}", function(response){
-                            $('#package-id').empty();
-                            $('#package-id').append('<option selected disabled> -- Choose --</option>');
-                            $.each(response, function(i, package){
-                                $('#package-id').append('<option value="'+package.id+'">'+package.code+' - '+package.name+'</option>');
-                            });
-                        });
                         table.draw();
                     }, error: function(error){
+                        console.log(error.responseJSON.message);
                         swal.fire({
                             toast: true,
                             position: 'top-end',
@@ -204,6 +223,7 @@
                         $.each(error.responseJSON, function(i, error){
                             $('#alert-'+i).addClass('d-block').removeClass('d-none').html(error[0]);
                             $('input[name="'+i+'"]').addClass('is-invalid');
+                            $('input:checkbox[name="'+i+'[]"]').addClass('is-invalid');
                         });
                     }
                 });
@@ -235,11 +255,9 @@
                         $('#name').val(response.data.name);
                         $('#username').val(response.data.username);
                         $('#email').val(response.data.email);
-                        if (response.package === null) {
-                            $('#package-id').val();
-                        } else {
-                            $('#package-id').val(response.package).prop('selected', true).change();
-                        }
+                        $.each(response.modules, function(i, modul){
+                            $('input:checkbox[value="'+modul+'"]').prop('checked', true);
+                        });
                         $('#cancel').removeClass('d-none');
                         $('#store').val('edit');
                         $('html,body').animate({scrollTop: $("#form").offset().top},'fast');
@@ -266,14 +284,6 @@
                 $(this).addClass('d-none');
                 $('.invalid-feedback').removeClass('d-block');
                 $('input').removeClass('is-invalid');
-                // get packages
-                $.get("{{ route('users.getpackages') }}", function(response){
-                    $('#package-id').empty();
-                    $('#package-id').append('<option selected disabled> -- Choose --</option>');
-                    $.each(response, function(i, package){
-                        $('#package-id').append('<option value="'+package.id+'">'+package.code+' - '+package.name+'</option>');
-                    });
-                });
             });
 
             // delete user
@@ -329,12 +339,25 @@
                 id  = $(this).data('id');
                 url = "{{ route('users.show', ":id") }}";
                 url = url.replace(':id', id);
-                $.get(url, function(response){
-                    $('#user-name').html(response.data.name);
-                    $('#user-email').html(response.data.email);
-                    $('#detail-package').jstree('destroy').append(response.info).jstree();
-                    $('#modal-info').modal('show');
+                $.ajax({
+                    url: url, 
+                    type: 'get',
+                    cache: false,
+                    success: function(response){
+                        $('#user-name').html(response.data.name);
+                        $('#user-email').html(response.data.email);
+                        $('#detail-package').jstree('destroy').append(response.info).jstree();
+                        $('#modal-info').modal('show');
+                    }, error: function(error){
+                        console.log(error.responseJSON.message);
+                    }
                 });
+                // $.get(url, function(response){
+                //     $('#user-name').html(response.data.name);
+                //     $('#user-email').html(response.data.email);
+                //     $('#detail-package').jstree('destroy').append(response.info).jstree();
+                //     $('#modal-info').modal('show');
+                // });
             });
         });
     </script>

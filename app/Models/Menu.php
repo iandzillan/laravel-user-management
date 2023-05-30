@@ -11,7 +11,7 @@ class Menu extends Model
 
     protected $fillable = ['code', 'icon', 'name'];
 
-    public function moduls()
+    public function modules()
     {
         return $this->belongsToMany(Modul::class);
     }
@@ -19,5 +19,15 @@ class Menu extends Model
     public function permissions()
     {
         return $this->belongsToMany(Permission::class)->withTimestamps();
+    }
+
+    public function getCodeAttribute($value)
+    {
+        return strtoupper($value);
+    }
+
+    public function getNameAttribute($value)
+    {
+        return ucwords($value);
     }
 }

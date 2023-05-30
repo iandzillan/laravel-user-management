@@ -14,9 +14,17 @@ class ModulSeeder extends Seeder
     public function run(): void
     {
         Modul::create([
-            'code'        => 'U001',
-            'name'        => 'User Modul',
-            'description' => 'Contain menus that related to user data'
+            'code'        => 'A001',
+            'sequence'    => 1,
+            'name'        => 'Home',
+            'description' => 'Contain dashboard menu'
+        ]);
+
+        Modul::create([
+            'code'        => 'A002',
+            'sequence'    => 2,
+            'name'        => 'Settings',
+            'description' => 'Contain menus that related to menu and user configuration'
         ]);
     }
 }

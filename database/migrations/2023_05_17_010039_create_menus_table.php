@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
             $table->char('code', 3)->unique();
+            $table->integer('sequence');
             $table->string('name');
             $table->string('route_name');
             $table->string('icon');

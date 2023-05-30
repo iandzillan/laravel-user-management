@@ -19,12 +19,19 @@ class UserSeeder extends Seeder
         $faker = Faker::create('id_ID');
         $faker->seed(123);
 
+        User::create([
+            'name'     => 'Super Admin',
+            'email'    => 'admin@admin.com',
+            'username' => 'admin',
+            'password' => Hash::make('password')
+        ]);
+
         for ($i = 0; $i < 5; $i++) {
             $firstname = $faker->firstName();
             $lastname  = $faker->lastName();
             User::create([
                 'name'     => $firstname . ' ' . $lastname,
-                'email'    => strtolower($firstname) . '@testing.com',
+                'email'    => strtolower($firstname) . '@mail.com',
                 'username' => strtolower($firstname),
                 'password' => Hash::make('password')
             ]);

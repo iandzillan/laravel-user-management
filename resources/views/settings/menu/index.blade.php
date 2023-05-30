@@ -23,12 +23,17 @@
                             <input type="text" name="name" id="name" class="form-control">
                             <div class="invalid-feedback d-none" role="alert" id="alert-name"></div>
                         </div>
-                        <div class="mb-3 col-lg-6 col-md-12">
+                        <div class="mb-3 col-lg-4 col-md-12">
                             <label for="route-name" class="form-label">Route Name</label>
                             <input type="text" name="route_name" id="route-name" class="form-control" placeholder="Example: users.index">
                             <div class="invalid-feedback d-none" role="alert" id="alert-route_name"></div>
                         </div>
-                        <div class="mb-3 col-lg-6 col-md-12">
+                        <div class="mb-3 col-lg-4 col-md-12">
+                            <label for="sequence" class="form-label">Sequence</label>
+                            <input type="number" name="sequence" id="sequence" class="form-control">
+                            <div class="invalid-feedback d-none" role="alert" id="alert-sequence"></div>
+                        </div>
+                        <div class="mb-3 col-lg-4 col-md-12">
                             <label for="icon" class="form-label">Icon</label>
                             <div class="input-group">
                                 <input type="text" name="icon" id="icon" class="form-control">
@@ -70,6 +75,7 @@
                         <tr>
                             <th>#</th>
                             <th>Code</th>
+                            <th>Sequence</th>
                             <th>Menu</th>
                             <th>Route Name</th>
                             <th>Permissions</th>
@@ -97,6 +103,7 @@
                 columns: [
                     {data: 'DT_RowIndex', name: 'DT_RowIndex'},
                     {data: 'code', name: 'code'},
+                    {data: 'sequence', name: 'sequence'},
                     {data: 'name', name: 'name'},
                     {data: 'route_name', name: 'route_name'},
                     {data: 'permissions', name: 'permissions'},
@@ -201,6 +208,7 @@
                         $('#name').val(response.data.name);
                         $('#icon').val(response.data.icon);
                         $('#route-name').val(response.data.route_name);
+                        $('#sequence').val(response.data.sequence);
                         $.each(response.permissions, function(i, permission){
                             $('input:checkbox[value="'+permission+'"]').prop('checked', true);
                         });

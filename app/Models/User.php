@@ -44,13 +44,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function package()
+    public function modules()
     {
-        return $this->belongsTo(Package::class);
+        return $this->belongsToMany(Modul::class)->withTimestamps();
     }
 
-    public function permissions()
+    public function getNameAttribute($value)
     {
-        return $this->belongsToMany(Permission::class)->withTimestamps();
+        return ucwords($value);
     }
 }

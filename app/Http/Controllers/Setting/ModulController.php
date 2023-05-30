@@ -17,10 +17,17 @@ class ModulController extends Controller
     {
         $this->authorize('viewAny', Modul::class);
 
-        $moduls = Modul::withCount('menus')->latest()->get();
+        if (Auth::user()->email === 'admin@admin.com') {
+            $modules = Modul::all()->sortByDESC('sequence');
+        } else {
+            $modules = Modul::with('users')->whereHas('users', function ($q) {
+                $q->where('users.id', Auth::user()->id);
+            })->get()->sortBy('sequence');
+        }
+
         $user   = $request->user();
         if ($request->ajax()) {
-            return DataTables::of($moduls)
+            return DataTables::of($modules)
                 ->addIndexColumn()
                 ->addColumn('menus', function ($row) {
                     $list = '<ul>';
@@ -35,13 +42,13 @@ class ModulController extends Controller
                     $btn_edit   = '';
                     $btn_info   = '';
                     $btn_delete = '';
-                    if ($user->can('update_modul', $row)) {
+                    if ($user->can('update', $row)) {
                         $btn_edit   = '<a class="btn btn-primary btn-sm" id="btn-edit" data-id="' . $row->id . '" title="Edit"><i class="ti ti-edit"></i></a>';
                     }
-                    if ($user->can('info_modul', $row)) {
+                    if ($user->can('view', $row)) {
                         $btn_info   = ' <a class="btn btn-success btn-sm" id="btn-info" data-id="' . $row->id . '" title="Detail"><i class="ti ti-info-circle"></i></a>';
                     }
-                    if ($user->can('delete_modul', $row)) {
+                    if ($user->can('delete', $row)) {
                         $btn_delete = ' <a class="btn btn-danger btn-sm" id="btn-delete" data-id="' . $row->id . '" title="Delete"><i class="ti ti-trash"></i></a>';
                     }
 
@@ -54,15 +61,16 @@ class ModulController extends Controller
         return view('settings.modul.index', [
             'title' => 'Modul Master Data',
             'name'  => Auth::user()->name,
-            'menus' => Menu::all()->sortBy('code')
+            'menus' => Menu::all()->sortBy(['code', 'sequence'])
         ]);
     }
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'code'        => 'required|unique:moduls|min:4|max:4|alpha_num',
-            'name'        => 'required|unique:moduls',
+            'code'        => 'required|unique:modules|min:4|max:4|alpha_num',
+            'sequence'    => 'required|unique:modules|integer',
+            'name'        => 'required|unique:modules',
             'description' => 'required',
             'menu_id'     => 'required'
         ], [
@@ -75,11 +83,12 @@ class ModulController extends Controller
 
         $menu  = Menu::find($request->menu_id);
         $modul = new Modul();
-        $modul->code        = strtoupper($request->code);
-        $modul->name        = ucwords($request->name);
-        $modul->description = ucfirst($request->description);
+        $modul->code        = $request->code;
+        $modul->sequence    = $request->sequence;
+        $modul->name        = $request->name;
+        $modul->description = $request->description;
         $modul->save();
-        $modul->menus()->toggle($menu);
+        $modul->menus()->sync($menu);
 
         return response()->json([
             'success' => true,
@@ -89,7 +98,7 @@ class ModulController extends Controller
 
     public function show(Modul $modul)
     {
-        $this->authorize('update', $modul);
+        // $this->authorize('update', $modul);
 
         return response()->json([
             'success' => true,
@@ -119,8 +128,9 @@ class ModulController extends Controller
     public function update(Request $request, Modul $modul)
     {
         $validator = Validator::make($request->all(), [
-            'code'        => ['required', 'min:4', 'max:4', 'alpha_num', Rule::unique('moduls')->ignore($modul->id)],
-            'name'        => ['required', Rule::unique('moduls')->ignore($modul->id)],
+            'code'        => ['required', 'min:4', 'max:4', 'alpha_num', Rule::unique('modules')->ignore($modul->id)],
+            'sequence'    => ['required', Rule::unique('modules')->ignore($modul->id), 'integer'],
+            'name'        => ['required', Rule::unique('modules')->ignore($modul->id)],
             'description' => 'required',
             'menu_id'     => 'required'
         ], [
@@ -132,9 +142,10 @@ class ModulController extends Controller
         }
 
         $menu               = Menu::find($request->menu_id);
-        $modul->code        = strtoupper($request->code);
-        $modul->name        = ucwords($request->name);
-        $modul->description = ucfirst($request->description);
+        $modul->code        = $request->code;
+        $modul->sequence    = $request->sequence;
+        $modul->name        = $request->name;
+        $modul->description = $request->description;
         $modul->save();
         $modul->menus()->sync($menu);
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\DataTables;
@@ -15,8 +16,8 @@ class PermissionController extends Controller
     public function index(Request $request)
     {
         $this->authorize('viewAny', Permission::class);
-        $user = $request->user();
 
+        $user = $request->user();
         $permissions   = Permission::all();
         if ($request->ajax()) {
             return DataTables::of($permissions)
@@ -24,10 +25,10 @@ class PermissionController extends Controller
                 ->addColumn('actions', function ($row) use ($user) {
                     $btn_edit   = '--';
                     $btn_delete = null;
-                    if ($user->can('edit_permission')) {
+                    if ($user->can('update', Permission::class)) {
                         $btn_edit = '<a class="btn btn-info btn-sm" id="btn-edit" title="Edit" data-id="' . $row->id . '"><i class="ti ti-edit"></i></a>';
                     }
-                    if ($user->can('delete_permission')) {
+                    if ($user->can('delete', Permission::class)) {
                         $btn_delete = ' <a class="btn btn-danger btn-sm" id="btn-delete" title="Delete" data-id="' . $row->id . '"><i class="ti ti-trash"></i></a>';
                     }
 
@@ -56,7 +57,7 @@ class PermissionController extends Controller
         }
 
         $permission = Permission::create([
-            'name' => ucfirst($request->name)
+            'name' => str_replace(' ', '', $request->name)
         ]);
 
         return response()->json([
@@ -67,7 +68,7 @@ class PermissionController extends Controller
 
     public function show(Permission $permission)
     {
-        $this->authorize('update', $permission);
+        $this->authorize('update', Permission::class);
 
         return response()->json([
             'success' => true,
@@ -88,7 +89,7 @@ class PermissionController extends Controller
         }
 
         $permission->update([
-            'name' => ucfirst($request->name)
+            'name' => str_replace(' ', '', $request->name)
         ]);
 
         return response()->json([
@@ -99,7 +100,7 @@ class PermissionController extends Controller
 
     public function destroy(Permission $permission)
     {
-        $this->authorize('delete', $permission);
+        $this->authorize('delete', Permission::class);
 
         $permission->delete();
         return response()->json([

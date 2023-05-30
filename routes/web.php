@@ -8,7 +8,9 @@ use App\Http\Controllers\Setting\ModulController;
 use App\Http\Controllers\Setting\PackageController;
 use App\Http\Controllers\User\UserController;
 use App\Models\Menu;
+use App\Models\Modul;
 use App\Models\Permission;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,7 +35,6 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
-    Route::get('/testing', [MenuController::class, 'testing']);
 
     // permission
     Route::group(['prefix' => 'permission'], function () {
@@ -54,30 +55,20 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     // modul
-    Route::group(['prefix' => 'moduls'], function () {
-        Route::get('/', [ModulController::class, 'index'])->name('moduls.index');
-        Route::post('/store', [ModulController::class, 'store'])->name('moduls.store');
-        Route::get('/{modul}/show', [ModulController::class, 'show'])->name('moduls.show');
-        Route::patch('/{modul}', [ModulController::class, 'update'])->name('moduls.update');
-        Route::delete('/{modul}', [ModulController::class, 'destroy'])->name('moduls.destroy');
-    });
-
-    // package
-    Route::group(['prefix' => 'packages'], function () {
-        Route::get('/', [PackageController::class, 'index'])->name('packages.index');
-        Route::post('/store', [PackageController::class, 'store'])->name('packages.store');
-        Route::get('/{package}/show', [PackageController::class, 'show'])->name('packages.show');
-        Route::patch('/{package}', [PackageController::class, 'update'])->name('packages.update');
-        Route::delete('/{package}', [PackageController::class, 'destroy'])->name('packages.destroy');
+    Route::group(['prefix' => 'modules'], function () {
+        Route::get('/', [ModulController::class, 'index'])->name('modules.index')->can('viewAny', Modul::class);
+        Route::post('/store', [ModulController::class, 'store'])->name('modules.store')->can('create', Modul::class);
+        Route::get('/{modul}/show', [ModulController::class, 'show'])->name('modules.show')->can('update', Modul::class);
+        Route::patch('/{modul}', [ModulController::class, 'update'])->name('modules.update')->can('update', Modul::class);
+        Route::delete('/{modul}', [ModulController::class, 'destroy'])->name('modules.destroy')->can('delete', Modul::class);
     });
 
     // user
     Route::group(['prefix' => 'users'], function () {
-        Route::get('/', [UserController::class, 'index'])->name('users.index');
-        Route::get('/get-packages', [UserController::class, 'getPackages'])->name('users.getpackages');
-        Route::post('/store', [UserController::class, 'store'])->name('users.store');
-        Route::get('/{user}/show', [UserController::class, 'show'])->name('users.show');
-        Route::patch('/{user}', [UserController::class, 'update'])->name('users.update');
-        Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::get('/', [UserController::class, 'index'])->name('users.index')->can('viewAny', User::class);
+        Route::post('/store', [UserController::class, 'store'])->name('users.store')->can('create', User::class);
+        Route::get('/{user}/show', [UserController::class, 'show'])->name('users.show')->can('update', User::class);
+        Route::patch('/{user}', [UserController::class, 'update'])->name('users.update')->can('update', User::class);
+        Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy')->can('delete', User::class);
     });
 });

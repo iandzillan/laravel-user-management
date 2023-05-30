@@ -19,7 +19,7 @@
         {{-- Sidebar Navigation --}}
         <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
             <ul id="sidebarnav">
-                @foreach (Auth::user()->package->moduls->sortBy('code') as $modul)
+                @foreach (Auth::user()->modules->sortBy('sequence') as $modul)
                     <li class="nav-small-cap">
                         <span class="hide-menu">{{ $modul->name }}</span>
                     </li>

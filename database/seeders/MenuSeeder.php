@@ -14,17 +14,43 @@ class MenuSeeder extends Seeder
     public function run(): void
     {
         Menu::create([
-            'code'       => 'U01',
-            'name'       => 'User',
-            'icon'       => 'user-cog',
-            'route_name' => 'users.index'
+            'code'       => 'A01',
+            'sequence'   => 1,
+            'name'       => 'Dashboard',
+            'icon'       => 'layout-dashboard',
+            'route_name' => 'dashboard.index'
         ]);
 
         Menu::create([
-            'code'       => 'U02',
+            'code'       => 'B01',
+            'sequence'   => 2,
             'name'       => 'Permission',
-            'icon'       => 'user-shield',
+            'icon'       => 'fingerprint',
             'route_name' => 'permissions.index',
+        ]);
+
+        Menu::create([
+            'code'       => 'C01',
+            'sequence'   => 3,
+            'name'       => 'Menu',
+            'icon'       => 'folders',
+            'route_name' => 'menus.index',
+        ]);
+
+        Menu::create([
+            'code'       => 'D01',
+            'sequence'   => 4,
+            'name'       => 'Modul',
+            'icon'       => 'folder',
+            'route_name' => 'modules.index',
+        ]);
+
+        Menu::create([
+            'code'       => 'E01',
+            'sequence'   => 5,
+            'name'       => 'User',
+            'icon'       => 'user-cog',
+            'route_name' => 'users.index',
         ]);
     }
 }
