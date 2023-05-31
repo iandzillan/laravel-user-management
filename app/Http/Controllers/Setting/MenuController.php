@@ -17,16 +17,8 @@ class MenuController extends Controller
     {
         $this->authorize('viewAny', Menu::class);
 
-        if (Auth::user()->email == 'admin@admin.com') {
-            $menus = Menu::all()->sortByDESC('sequence');
-        } else {
-            $menus = Menu::with('modules', 'modules.users')->whereHas('modules.users', function ($q) {
-                $q->where('users.id', Auth::user()->id);
-            })->get()->sortBy('sequence');
-        }
-
+        $menus = Menu::all()->sortByDesc('sequence');
         $user  = $request->user();
-
         if ($request->ajax()) {
             return DataTables::of($menus)
                 ->addIndexColumn()

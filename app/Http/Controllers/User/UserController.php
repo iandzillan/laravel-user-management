@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Employee;
 use App\Models\Modul;
-use App\Models\Package;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +28,9 @@ class UserController extends Controller
         if ($request->ajax()) {
             return DataTables::of($users)
                 ->addIndexColumn()
+                ->addColumn('name', function ($row) {
+                    return $row->employee->name;
+                })
                 ->addColumn('modules', function ($row) {
                     $list = '<ol>';
                     foreach ($row->modules as $modul) {
@@ -58,9 +61,15 @@ class UserController extends Controller
 
         return view('settings.user.index', [
             'title'    => 'Users',
-            'name'     => Auth::user()->name,
             'modules'  => Modul::all()->sortBy('sequence')
         ]);
+    }
+
+    public function getEmployees()
+    {
+        $employees = Employee::doesntHave('user')->get(['id', 'name']);
+
+        return response()->json($employees);
     }
 
     public function store(Request $request)
@@ -68,24 +77,24 @@ class UserController extends Controller
         $this->authorize('create', User::class);
 
         $validator = Validator::make($request->all(), [
-            'name'       => 'required',
-            'email'      => 'required|email:rfc,dns|unique:users',
-            'username'   => 'required|unique:users',
-            'password'   => 'required|confirmed',
-            'modul_id'   => 'sometimes',
+            'employee_id' => 'required',
+            'email'       => 'required|email:rfc,dns|unique:users',
+            'username'    => 'required|unique:users',
+            'password'    => 'required|confirmed',
+            'modul_id'    => 'sometimes',
         ], [
-            'modul_id.required' => 'Please choose the modul'
+            'employee_id.required' => 'Please select the employee'
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $user           = new User();
-        $user->name     = $request->name;
-        $user->email    = $request->email;
-        $user->username = $request->username;
-        $user->password = Hash::make($request->password);
+        $user              = new User();
+        $user->employee_id = $request->employee_id;
+        $user->email       = $request->email;
+        $user->username    = $request->username;
+        $user->password    = Hash::make($request->password);
         $user->save();
 
         if ($request->modul_id) {
@@ -95,8 +104,9 @@ class UserController extends Controller
 
 
         return response()->json([
-            'success' => true,
-            'data' => $user
+            'success'  => true,
+            'data'     => $user,
+            'employee' => $user->employee
         ]);
     }
 
@@ -108,6 +118,7 @@ class UserController extends Controller
             'success'  => true,
             'data'     => $user,
             'modules'  => $user->modules->pluck('id'),
+            'employee' => $user->employee,
             'info'     => $this->info($user)
         ]);
     }
@@ -139,13 +150,11 @@ class UserController extends Controller
         $this->authorize('update', User::class);
 
         $validator = Validator::make($request->all(), [
-            'name'       => 'required',
+            'employee_id' => 'required',
             'email'      => ['required', 'email:rfc,dns', Rule::unique('users')->ignore($user->id)],
             'username'   => ['required', Rule::unique('users')->ignore($user->id)],
             'password'   => 'sometimes|confirmed',
             'modul_id'   => 'sometimes'
-        ], [
-            'modul_id.required' => 'Please choose the modul'
         ]);
 
         if ($validator->fails()) {
@@ -156,10 +165,10 @@ class UserController extends Controller
             $user->password = Hash::make($request->password);
         }
 
-        $user->name     = $request->name;
-        $user->email    = $request->email;
-        $user->username = $request->username;
-        $user->password = $user->password;
+        $user->employee_id = $request->employee_id;
+        $user->email       = $request->email;
+        $user->username    = $request->username;
+        $user->password    = $user->password;
         $user->save();
 
         if ($request->modul_id) {
@@ -168,8 +177,9 @@ class UserController extends Controller
         }
 
         return response()->json([
-            'success' => true,
-            'data'    => $user
+            'success'  => true,
+            'data'     => $user,
+            'employee' => $user->employee
         ]);
     }
 
@@ -179,8 +189,9 @@ class UserController extends Controller
 
         $user->delete();
         return response()->json([
-            'success' => true,
-            'data'    => $user
+            'success'  => true,
+            'data'     => $user,
+            'employee' => $user->employee
         ]);
     }
 }

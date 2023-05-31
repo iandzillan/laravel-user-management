@@ -53,4 +53,9 @@ class User extends Authenticatable
     {
         return ucwords($value);
     }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
 }

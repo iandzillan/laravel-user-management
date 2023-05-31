@@ -5,7 +5,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\Setting\PermissionController;
 use App\Http\Controllers\Setting\MenuController;
 use App\Http\Controllers\Setting\ModulController;
-use App\Http\Controllers\Setting\PackageController;
+use App\Http\Controllers\User\EmployeeController;
 use App\Http\Controllers\User\UserController;
 use App\Models\Menu;
 use App\Models\Modul;
@@ -66,9 +66,16 @@ Route::group(['middleware' => 'auth'], function () {
     // user
     Route::group(['prefix' => 'users'], function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index')->can('viewAny', User::class);
+        Route::get('/get-employees', [UserController::class, 'getEmployees'])->name('users.getEmployees')->can('create', User::class);
         Route::post('/store', [UserController::class, 'store'])->name('users.store')->can('create', User::class);
         Route::get('/{user}/show', [UserController::class, 'show'])->name('users.show')->can('update', User::class);
         Route::patch('/{user}', [UserController::class, 'update'])->name('users.update')->can('update', User::class);
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy')->can('delete', User::class);
+    });
+
+    // employee
+    Route::group(['prefix' => 'employees'], function () {
+        Route::get('/', [EmployeeController::class, 'index'])->name('employees.index');
+        Route::post('/store', [EmployeeController::class, 'store'])->name('employees.store');
     });
 });

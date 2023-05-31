@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Employee;
+use App\Models\Modul;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -19,22 +21,14 @@ class UserSeeder extends Seeder
         $faker = Faker::create('id_ID');
         $faker->seed(123);
 
-        User::create([
-            'name'     => 'Super Admin',
-            'email'    => 'admin@admin.com',
-            'username' => 'admin',
-            'password' => Hash::make('password')
-        ]);
-
-        for ($i = 0; $i < 5; $i++) {
-            $firstname = $faker->firstName();
-            $lastname  = $faker->lastName();
-            User::create([
-                'name'     => $firstname . ' ' . $lastname,
-                'email'    => strtolower($firstname) . '@mail.com',
-                'username' => strtolower($firstname),
-                'password' => Hash::make('password')
-            ]);
-        }
+        $employee       = Employee::find(1);
+        $modules        = Modul::all()->pluck('id');
+        $user           = new User();
+        $user->username = 'superadmin';
+        $user->email    = strtolower(str_replace(' ', '', $employee->name)) . '@admin.com';
+        $user->password = Hash::make('password');
+        $user->employee()->associate($employee);
+        $user->save();
+        $user->modules()->sync($modules);
     }
 }

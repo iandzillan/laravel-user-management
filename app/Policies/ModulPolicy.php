@@ -37,7 +37,7 @@ class ModulPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Modul $modul)
+    public function view(User $user)
     {
         return in_array('view', $this->permission($user));
     }
@@ -53,7 +53,7 @@ class ModulPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Modul $modul)
+    public function update(User $user)
     {
         return in_array('update', $this->permission($user));
     }
@@ -61,7 +61,7 @@ class ModulPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Modul $modul)
+    public function delete(User $user)
     {
         return in_array('delete', $this->permission($user));
     }

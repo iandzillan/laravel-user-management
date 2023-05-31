@@ -11,10 +11,10 @@
                 <form action="{{ route('users.store') }}" method="post" id="form-user">
                     <div class="row d-flex justify-content-start">
                         <input type="hidden" name="id" id="id">
-                        <div class="mb-3 col-lg-6 col-md-12">
-                            <label for="name" class="form-label">Name</label>
-                            <input type="text" name="name" id="name" class="form-control">
-                            <div class="invalid-feedback d-none" role="alert" id="alert-name"></div>
+                        <div class="mb-3 col-lg-6 col-md-12" id="employee">
+                            <label for="employee-id" class="form-label">Employee</label>
+                            <select name="employee_id" id="employee-id" class="form-select"></select>
+                            <div class="invalid-feedback d-none" role="alert" id="alert-employee_id"></div>
                         </div>
                         <div class="mb-3 col-lg-6 col-md-12">
                             <label for="username" class="form-label">Username</label>
@@ -44,7 +44,7 @@
                                 @forelse ($modules as $modul)
                                     <div class="mb-3 col-lg-4 col-md-6">
                                         <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" name="modul_id[]" id="modul-id" value="{{ $modul->id }}">
+                                            <input type="checkbox" class="form-check-input" name="modul_id[]" id="modul-{{ $modul->code }}" value="{{ $modul->id }}">
                                             <div class="accordion" id="accordion-menu">
                                                 <div class="accordion-item">
                                                     <h2 class="accordion-header">
@@ -140,6 +140,20 @@
     {{-- Script --}}
     <script>
         $(document).ready(function(){
+            // get employee
+            function employee(){
+                $.get("{{ route('users.getEmployees') }}", function(response){
+                    $('#employee-id').empty().prop('disabled', false);
+                    $('#employee-id').append('<option selected disabled> -- Choose -- </option>');
+                    $.each(response, function(i, employee){
+                        $('#employee-id').append('<option value="'+employee.id+'">'+employee.name+'</option>');
+                    });
+                });
+            }
+
+            // call employee function
+            employee();
+
             // data table
             let table = $('#data-users').DataTable({
                 processing: true,
@@ -171,6 +185,8 @@
                     textToast = 'Please wait, updating the data...';
                     typeJson  = 'patch';
                     message   = ' has been updated';
+                    $('#employee-id').prop('disabled', false);
+                    $('#username').prop('disabled', false);
                 }
 
                 swal.fire({
@@ -196,12 +212,13 @@
                             toast: true,
                             position: 'top-end',
                             icon: 'success',
-                            text: response.data.name + message,
+                            text: 'User account ' +response.employee.name + message,
                             showConfirmButton: false,
                             timer: 2000
                         });
                         let storeURL = "{{ route('users.store') }}";
                         $('#form-user').trigger('reset').attr('action', storeURL).attr('method', 'post');
+                        employee();
                         $('.invalid-feedback').removeClass('d-block').addClass('d-none');
                         $('input').removeClass('is-invalid');
                         $('#store').val('store');
@@ -221,8 +238,10 @@
                         $('.invalid-feedback').removeClass('d-block').addClass('d-none');
                         $('input').removeClass('is-invalid');
                         $.each(error.responseJSON, function(i, error){
+                            console.log(i);
                             $('#alert-'+i).addClass('d-block').removeClass('d-none').html(error[0]);
                             $('input[name="'+i+'"]').addClass('is-invalid');
+                            $('select[name="'+i+'"]').addClass('is-invalid');
                             $('input:checkbox[name="'+i+'[]"]').addClass('is-invalid');
                         });
                     }
@@ -243,17 +262,16 @@
                             toast: true,
                             position: 'top-end',
                             icon: 'warning',
-                            text: "You're editing " + response.data.name + " user data",
+                            text: "You're editing " + response.employee.name + " user account",
                             showConfirmButton: false
                         });
 
                         let updateURL = "{{ route('users.update', ":id") }}";
                         updateURL     = updateURL.replace(':id', id);
-                        $('#form-user').attr('action', updateURL);
-                        $('#form-user').attr('method', 'patch');
+                        $('#form-user').attr('action', updateURL).attr('method', 'patch');
                         $('#id').val(response.data.id);
-                        $('#name').val(response.data.name);
                         $('#username').val(response.data.username);
+                        $('#employee-id').append('<option value="'+response.employee.id+'" selected>'+response.employee.name+'</option>').prop('disabled', true);
                         $('#email').val(response.data.email);
                         $.each(response.modules, function(i, modul){
                             $('input:checkbox[value="'+modul+'"]').prop('checked', true);
@@ -272,6 +290,8 @@
                 let storeURL = "{{ route('users.store') }}";
                 $('#form-user').attr('action', storeURL).attr('method', 'post');
                 $('#store').val('store');
+                employee();
+                $('#username').prop('disabled', false);
                 swal.fire({
                     toast: true,
                     position: 'top-end',
@@ -321,11 +341,12 @@
                                     toast: true, 
                                     position: 'top-end',
                                     icon: 'success',
-                                    text: response.data.name + ' has been deleted',
+                                    text: 'User account ' + response.employee.name + ' has been deleted',
                                     showConfirmButton: false,
                                     timerProgressBar: true,
                                     timer: 2000
                                 });
+                                employee();
                                 table.draw();
                             }
                         });
@@ -335,29 +356,16 @@
 
             // info button
             $('body').on('click', '#btn-info', function(){
-                let id, url, data; 
+                let id, url; 
                 id  = $(this).data('id');
                 url = "{{ route('users.show', ":id") }}";
                 url = url.replace(':id', id);
-                $.ajax({
-                    url: url, 
-                    type: 'get',
-                    cache: false,
-                    success: function(response){
-                        $('#user-name').html(response.data.name);
-                        $('#user-email').html(response.data.email);
-                        $('#detail-package').jstree('destroy').append(response.info).jstree();
-                        $('#modal-info').modal('show');
-                    }, error: function(error){
-                        console.log(error.responseJSON.message);
-                    }
+                $.get(url, function(response){
+                    $('#user-name').html(response.employee.name);
+                    $('#user-email').html(response.data.email);
+                    $('#detail-package').jstree('destroy').append(response.info).jstree();
+                    $('#modal-info').modal('show');
                 });
-                // $.get(url, function(response){
-                //     $('#user-name').html(response.data.name);
-                //     $('#user-email').html(response.data.email);
-                //     $('#detail-package').jstree('destroy').append(response.info).jstree();
-                //     $('#modal-info').modal('show');
-                // });
             });
         });
     </script>
