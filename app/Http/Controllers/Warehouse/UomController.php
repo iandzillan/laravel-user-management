@@ -1,28 +1,27 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\Warehouse;
 
 use App\Http\Controllers\Controller;
-use App\Models\Employee;
+use App\Models\Uom;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Yajra\DataTables\DataTables;
 
-class EmployeeController extends Controller
+use function GuzzleHttp\Promise\all;
+
+class UomController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorize('viewAny', Employee::class);
-
-        $employees = Employee::with('user')->latest()->get();
+        $uoms = Uom::latest()->get();
         if ($request->ajax()) {
-            return DataTables::of($employees)
+            return DataTables::of($uoms)
                 ->addIndexColumn()
-                ->addColumn('username', function ($row) {
-                    return $row->user->username;
-                })
-                ->addColumn('actions', function ($row) use ($request) {
+                ->addColumn('actions', function ($row) {
+                    $btn_edit   = '';
+                    $btn_delete = '';
                     $btn_edit   = '<a id="btn-edit" data-id="' . $row->id . '" class="btn btn-info btn-sm" title="Edit"><i class="ti ti-edit"></i></a>';
                     $btn_delete = ' <a id="btn-delete" data-id="' . $row->id . '" class="btn btn-danger btn-sm" title="Delete"><i class="ti ti-trash"></i></a>';
 
@@ -32,77 +31,74 @@ class EmployeeController extends Controller
                 ->make(true);
         }
 
-        return view('settings.employee.index', [
-            'title' => 'Employee',
+        return view('warehouse.uom.index', [
+            'title' => 'UOM (Stock Unit)'
         ]);
     }
 
     public function store(Request $request)
     {
-        $this->authorize('create', Employee::class);
-
         $validator = Validator::make($request->all(), [
+            'code' => 'required|min:3|max:3|alpha_num|unique:uoms',
             'name' => 'required',
-            'dept' => 'required'
+            'unit' => 'required'
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $employee = Employee::create([
+        $uom = Uom::create([
+            'code' => $request->code,
             'name' => $request->name,
-            'dept' => $request->dept
+            'unit' => $request->unit,
         ]);
 
         return response()->json([
             'success' => true,
-            'data'    => $employee
+            'data'    => $uom
         ]);
     }
 
-    public function show(Employee $employee)
+    public function show(Uom $uom)
     {
-        $this->authorize('update', $employee->id);
-
         return response()->json([
             'success' => true,
-            'data'    => $employee
+            'data'    => $uom
         ]);
     }
 
-    public function update(Request $request, Employee $employee)
+    public function update(Request $request, Uom $uom)
     {
-        $this->authorize('update', Employee::class);
-
         $validator = Validator::make($request->all(), [
+            'code' => ['required', 'min:3', 'max:3', 'alpha_num', Rule::unique('uoms')->ignore($uom->id)],
             'name' => 'required',
-            'dept' => 'required'
+            'unit' => 'required'
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $employee->update([
+        $uom->update([
+            'code' => $request->code,
             'name' => $request->name,
-            'dept' => $request->dept
+            'unit' => $request->unit,
         ]);
 
         return response()->json([
             'success' => true,
-            'data'    => $employee
+            'data'    => $uom
         ]);
     }
 
-    public function destroy(Employee $employee)
+    public function destroy(Uom $uom)
     {
-        $this->authorize('delete', Employee::class);
+        $uom->delete();
 
-        $employee->delete();
         return response()->json([
             'success' => true,
-            'data'    => $employee
+            'data'    => $uom
         ]);
     }
 }

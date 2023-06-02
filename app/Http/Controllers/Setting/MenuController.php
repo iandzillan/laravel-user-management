@@ -17,7 +17,7 @@ class MenuController extends Controller
     {
         $this->authorize('viewAny', Menu::class);
 
-        $menus = Menu::all()->sortByDesc('sequence');
+        $menus = Menu::latest()->get();
         $user  = $request->user();
         if ($request->ajax()) {
             return DataTables::of($menus)
@@ -65,7 +65,7 @@ class MenuController extends Controller
 
         $validator = Validator::make($request->all(), [
             'code'          => 'required|min:3|max:3|alpha_num|unique:menus',
-            'sequence'      => 'required|unique:menus|integer',
+            'sequence'      => 'required|integer',
             'name'          => 'required',
             'icon'          => 'required',
             'route_name'    => 'required',
@@ -111,7 +111,7 @@ class MenuController extends Controller
 
         $validator = Validator::make($request->all(), [
             'code'          => ['required', 'min:3', 'max:3', 'alpha_num', Rule::unique('menus')->ignore($menu->id)],
-            'sequence'      => ['required', Rule::unique('menus')->ignore($menu->id), 'integer'],
+            'sequence'      => 'required|integer',
             'name'          => 'required',
             'icon'          => 'required',
             'route_name'    => 'required',

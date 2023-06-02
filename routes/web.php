@@ -7,6 +7,10 @@ use App\Http\Controllers\Setting\MenuController;
 use App\Http\Controllers\Setting\ModulController;
 use App\Http\Controllers\User\EmployeeController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Warehouse\CategoryController;
+use App\Http\Controllers\Warehouse\UomController;
+use App\Http\Controllers\Warehouse\CurrencyController;
+use App\Models\Employee;
 use App\Models\Menu;
 use App\Models\Modul;
 use App\Models\Permission;
@@ -75,7 +79,37 @@ Route::group(['middleware' => 'auth'], function () {
 
     // employee
     Route::group(['prefix' => 'employees'], function () {
-        Route::get('/', [EmployeeController::class, 'index'])->name('employees.index');
-        Route::post('/store', [EmployeeController::class, 'store'])->name('employees.store');
+        Route::get('/', [EmployeeController::class, 'index'])->name('employees.index')->can('viewAny', Employee::class);
+        Route::post('/store', [EmployeeController::class, 'store'])->name('employees.store')->can('create', Employee::class);
+        Route::get('/{employee}/show', [EmployeeController::class, 'show'])->name('employees.show')->can('update', Employee::class);
+        Route::patch('/{employee}', [EmployeeController::class, 'update'])->name('employees.update')->can('update', Employee::class);
+        Route::delete('/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy')->can('delete', Employee::class);
+    });
+
+    // category
+    Route::group(['prefix' => 'categories'], function () {
+        Route::get('/', [CategoryController::class, 'index'])->name('categories.index');
+        Route::post('/store', [CategoryController::class, 'store'])->name('categories.store');
+        Route::get('/{category}/show', [CategoryController::class, 'show'])->name('categories.show');
+        Route::patch('/{category}', [CategoryController::class, 'update'])->name('categories.update');
+        Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+    });
+
+    // uom
+    Route::group(['prefix' => 'uoms'], function () {
+        Route::get('/', [UomController::class, 'index'])->name('uoms.index');
+        Route::post('/store', [UomController::class, 'store'])->name('uoms.store');
+        Route::get('/{uom}/show', [UomController::class, 'show'])->name('uoms.show');
+        Route::patch('/{uom}', [UomController::class, 'update'])->name('uoms.update');
+        Route::delete('/{uom}', [UomController::class, 'destroy'])->name('uoms.destroy');
+    });
+
+    // currency 
+    Route::group(['prefix' => 'currencies'], function () {
+        Route::get('/', [CurrencyController::class, 'index'])->name('currencies.index');
+        Route::post('/store', [CurrencyController::class, 'store'])->name('currencies.store');
+        Route::get('/{currency}/show', [CurrencyController::class, 'show'])->name('currencies.show');
+        Route::patch('/{currency}', [CurrencyController::class, 'update'])->name('currencies.update');
+        Route::delete('/{currency}', [CurrencyController::class, 'destroy'])->name('currencies.destroy');
     });
 });

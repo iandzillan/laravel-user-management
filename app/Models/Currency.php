@@ -5,23 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Employee extends Model
+class Currency extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'dept'];
+    protected $fillable = ['code', 'name'];
 
-    public function user()
+    public function getCodeAttribute($value)
     {
-        return $this->hasOne(User::class);
+        return strtoupper($value);
     }
 
     public function getNameAttribute($value)
-    {
-        return ucwords($value);
-    }
-
-    public function getDeptAttribute($value)
     {
         return ucwords($value);
     }

@@ -156,8 +156,8 @@
                     {data: 'sequence', name: 'sequence'},
                     {data: 'name', name: 'name'},
                     {data: 'description', name: 'description', orderable: false},
-                    {data: 'menus', name: 'menus'},
-                    {data: 'actions', name: 'actions', orderable: false, searchable: false, width: "12%"},
+                    {data: 'menus', name: 'menus', width: "20%"},
+                    {data: 'actions', name: 'actions', orderable: false, searchable: false, width: "13%"},
                 ]
             });
 
@@ -224,9 +224,7 @@
                         $('.invalid-feedback').removeClass('d-block').addClass('d-none');
                         $('input').removeClass('is-invalid');
                         $('textarea').removeClass('is-invalid');
-                        console.log(error.responseJSON);
                         $.each(error.responseJSON, function(i, error){
-                            console.log(error.responseJSON.message);
                             $('#alert-'+i).addClass('d-block').removeClass('d-none').html(error[0]);
                             $('input[name="'+i+'"]').addClass('is-invalid');
                             $('input:checkbox[name="'+i+'[]"]').addClass('is-invalid');

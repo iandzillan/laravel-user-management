@@ -17,13 +17,7 @@ class ModulController extends Controller
     {
         $this->authorize('viewAny', Modul::class);
 
-        if (Auth::user()->email === 'admin@admin.com') {
-            $modules = Modul::all()->sortByDESC('sequence');
-        } else {
-            $modules = Modul::with('users')->whereHas('users', function ($q) {
-                $q->where('users.id', Auth::user()->id);
-            })->get()->sortBy('sequence');
-        }
+        $modules = Modul::latest()->get();
 
         $user   = $request->user();
         if ($request->ajax()) {
@@ -69,7 +63,7 @@ class ModulController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'code'        => 'required|unique:modules|min:4|max:4|alpha_num',
-            'sequence'    => 'required|unique:modules|integer',
+            'sequence'    => 'required|integer',
             'name'        => 'required|unique:modules',
             'description' => 'required',
             'menu_id'     => 'required'
@@ -129,7 +123,7 @@ class ModulController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'code'        => ['required', 'min:4', 'max:4', 'alpha_num', Rule::unique('modules')->ignore($modul->id)],
-            'sequence'    => ['required', Rule::unique('modules')->ignore($modul->id), 'integer'],
+            'sequence'    => 'required|integer',
             'name'        => ['required', Rule::unique('modules')->ignore($modul->id)],
             'description' => 'required',
             'menu_id'     => 'required'

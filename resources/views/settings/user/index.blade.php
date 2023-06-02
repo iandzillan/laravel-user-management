@@ -54,6 +54,8 @@
                                                     </h2>
                                                     <div id="collapse-{{ $modul->code }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                                                         <div class="accordion-body">
+                                                            <strong>Description: </strong>
+                                                            <p>{{ $modul->description }}</p>
                                                             <strong>Menu:</strong>
                                                             <ol>
                                                                 @forelse ($modul->menus->sortBy('sequence') as $menu)
@@ -168,7 +170,7 @@
                     {data: 'username', name: 'username'},
                     {data: 'email', name: 'email'},
                     {data: 'modules', name: 'modules'},
-                    {data: 'actions', name: 'actions', orderable: false, searchable: false, width: "12%"},
+                    {data: 'actions', name: 'actions', orderable: false, searchable: false, width: "13%"},
                 ]
             });
 
@@ -195,8 +197,7 @@
                     icon: 'warning',
                     text: textToast,
                     showConfirmButton: false,
-                    timerProgressBar: true,
-                    timer: 2000
+                    timerProgressBar: true
                 });
 
                 formData  = $(this).serializeArray();

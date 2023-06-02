@@ -4,21 +4,21 @@
     {{-- Form --}}
     <div class="card" id="form">
         <div class="card-body">
-            <h5 class="card-title fw-semibold mb-4">Employees</h5>
+            <h5 class="card-title fw-semibold mb-4">Category</h5>
             <hr>
-            <h6 class="fw-semibold mb-3">Form Employee</h6>
-            <form action="{{ route('employees.store') }}" method="post" id="form-employee">
+            <h6 class="fw-semibold mb-3">Form Category</h6>
+            <form action="{{ route('categories.store') }}" method="post" id="form-category">
                 <div class="row d-flex justify-content-start">
                     <input type="hidden" name="id" id="id">
+                    <div class="mb-3 col-lg-6 col-md-12">
+                        <label for="code" class="form-label">Code</label>
+                        <input type="text" name="code" id="code" class="form-control" placeholder="Example: AB01">
+                        <div class="invalid-feedback d-none" role="alert" id="alert-code"></div>
+                    </div>
                     <div class="mb-3 col-lg-6 col-md-12">
                         <label for="name" class="form-label">Name</label>
                         <input type="text" name="name" id="name" class="form-control">
                         <div class="invalid-feedback d-none" role="alert" id="alert-name"></div>
-                    </div>
-                    <div class="mb-3 col-lg-6 col-md-12">
-                        <label for="dept" class="form-label">Department</label>
-                        <input type="text" name="dept" id="dept" class="form-control">
-                        <div class="invalid-feedback d-none" role="alert" id="alert-dept"></div>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary" id="store" value="store">Submit</button>
@@ -28,17 +28,16 @@
     </div>
 
     {{-- Data Tables --}}
-    <div class="card" id="table-employee">
+    <div class="card" id="table-category">
         <div class="card-body">
-            <h6 class="fw-semibold mb-3">Employee List</h6>
+            <h6 class="fw-semibold mb-3">Category List</h6>
             <div class="table-responsive">
-                <table class="table table-bordered" id="data-employees" style="width: 100%">
+                <table class="table table-bordered" id="data-categories" style="width: 100%">
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>Code</th>
                             <th>Name</th>
-                            <th>Username</th>
-                            <th>Department</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -51,25 +50,24 @@
         $(document).ready(function(){
             // define variable
             let table; 
-            // data-employees
-            table = $('#data-employees').DataTable({
+            // data-categories
+            table = $('#data-categories').DataTable({
                 processing: true,
                 serverSide: true,
                 initComplete: function (settings, json) {  
-                    $("#data-employees").wrap("<div style='overflow:auto; width:100%; position:relative;'></div>");            
+                    $("#data-categories").wrap("<div style='overflow:auto; width:100%; position:relative;'></div>");            
                 },
-                ajax: "{{ route('employees.index') }}",
+                ajax: "{{ route('categories.index') }}",
                 columns: [
                     {data: 'DT_RowIndex', name: 'DT_RowIndex'},
+                    {data: 'code', name: 'code'},
                     {data: 'name', name: 'name'},
-                    {data: 'username', name: 'username'},
-                    {data: 'dept', name: 'dept'},
-                    {data: 'actions', name: 'actions', orderable: false, searchable: false, width: "12%"},
+                    {data: 'actions', name: 'actions', orderable: false, searchable:false, width: "12%"},
                 ]
             });
 
             // store
-            $('#form-employee').on('submit', function(e){
+            $('#form-category').on('submit', function(e){
                 e.preventDefault();
                 let textToast, typeJson, message, formData, url, btnValue, storeURL;
                 btnValue = $('#store').val();
@@ -106,17 +104,17 @@
                             toast: true,
                             position: 'top-end',
                             icon: 'success',
-                            text: 'User account ' +response.data.name + message,
+                            text: 'Category ' +response.data.name + message,
                             showConfirmButton: false,
                             timer: 2000
                         });
-                        storeURL = "{{ route('employees.store') }}";
-                        $('#form-employee').trigger('reset').attr('action', storeURL).attr('method', 'post');
+                        storeURL = "{{ route('categories.store') }}";
+                        $('#form-category').trigger('reset').attr('action', storeURL).attr('method', 'post');
                         $('.invalid-feedback').removeClass('d-block').addClass('d-none');
                         $('input').removeClass('is-invalid');
                         $('#store').val('store');
                         $('#cancel').addClass('d-none');
-                        $('html,body').animate({scrollTop: $("#table-employee").offset().top},'fast');
+                        $('html,body').animate({scrollTop: $("#table-category").offset().top},'fast');
                         table.draw();
                     }, error: function(error){
                         console.log(error.responseJSON.message);
@@ -142,7 +140,7 @@
             $('body').on('click', '#btn-edit', function(){
                 let id, editURL, updateURL;
                 id      = $(this).data('id');
-                editURL = "{{ route('employees.show', ":id") }}";
+                editURL = "{{ route('categories.show', ":id") }}";
                 editURL = editURL.replace(':id', id);
                 $.ajax({
                     url: editURL,
@@ -153,16 +151,16 @@
                             toast: true,
                             position: 'top-end',
                             icon: 'warning',
-                            text: "You're editing " + response.data.name,
+                            text: "You're editing " + response.data.name + " category",
                             showConfirmButton: false
                         });
 
-                        updateURL = "{{ route('employees.update', ":id") }}";
+                        updateURL = "{{ route('categories.update', ":id") }}";
                         updateURL     = updateURL.replace(':id', id);
-                        $('#form-employee').attr('action', updateURL).attr('method', 'patch');
+                        $('#form-category').attr('action', updateURL).attr('method', 'patch');
                         $('#id').val(response.data.id);
+                        $('#code').val(response.data.code);
                         $('#name').val(response.data.name);
-                        $('#dept').val(response.data.dept);
                         $('#cancel').removeClass('d-none');
                         $('#store').val('edit');
                         $('html,body').animate({scrollTop: $("#form").offset().top},'fast');
@@ -174,8 +172,8 @@
 
             // cancel edit
             $('#cancel').on('click', function(){
-                let storeURL = "{{ route('employees.store') }}";
-                $('#form-employee').attr('action', storeURL).attr('method', 'post');
+                let storeURL = "{{ route('categories.store') }}";
+                $('#form-category').attr('action', storeURL).attr('method', 'post');
                 $('#store').val('store');
                 swal.fire({
                     toast: true,
@@ -195,7 +193,7 @@
             $('body').on('click', '#btn-delete', function(){
                 let id, url;
                 id  = $(this).data('id');
-                url = "{{ route('employees.destroy', ':id') }}";
+                url = "{{ route('categories.destroy', ':id') }}";
                 url = url.replace(':id', id);
 
                 swal.fire({
@@ -226,7 +224,7 @@
                                     toast: true, 
                                     position: 'top-end',
                                     icon: 'success',
-                                    text: 'Employee ' + response.data.name + ' has been deleted',
+                                    text: 'Category ' + response.data.name + ' has been deleted',
                                     showConfirmButton: false,
                                     timerProgressBar: true,
                                     timer: 2000

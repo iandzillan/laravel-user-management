@@ -1,28 +1,25 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\Warehouse;
 
 use App\Http\Controllers\Controller;
-use App\Models\Employee;
+use App\Models\Currency;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\DataTables;
 
-class EmployeeController extends Controller
+class CurrencyController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorize('viewAny', Employee::class);
+        $currencies = Currency::latest()->get();
 
-        $employees = Employee::with('user')->latest()->get();
         if ($request->ajax()) {
-            return DataTables::of($employees)
+            return DataTables::of($currencies)
                 ->addIndexColumn()
-                ->addColumn('username', function ($row) {
-                    return $row->user->username;
-                })
-                ->addColumn('actions', function ($row) use ($request) {
+                ->addColumn('actions', function ($row) {
+                    $btn_edit   = '';
+                    $btn_delete = '';
                     $btn_edit   = '<a id="btn-edit" data-id="' . $row->id . '" class="btn btn-info btn-sm" title="Edit"><i class="ti ti-edit"></i></a>';
                     $btn_delete = ' <a id="btn-delete" data-id="' . $row->id . '" class="btn btn-danger btn-sm" title="Delete"><i class="ti ti-trash"></i></a>';
 
@@ -32,77 +29,70 @@ class EmployeeController extends Controller
                 ->make(true);
         }
 
-        return view('settings.employee.index', [
-            'title' => 'Employee',
+        return view('warehouse.currency.index', [
+            'title' => 'Currency'
         ]);
     }
 
     public function store(Request $request)
     {
-        $this->authorize('create', Employee::class);
-
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'dept' => 'required'
+            'code' => 'required',
+            'name' => 'required'
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $employee = Employee::create([
-            'name' => $request->name,
-            'dept' => $request->dept
+        $currency = Currency::create([
+            'code' => $request->code,
+            'name' => $request->name
         ]);
 
         return response()->json([
             'success' => true,
-            'data'    => $employee
+            'data'    => $currency
         ]);
     }
 
-    public function show(Employee $employee)
+    public function show(Currency $currency)
     {
-        $this->authorize('update', $employee->id);
-
         return response()->json([
             'success' => true,
-            'data'    => $employee
+            'data'    => $currency
         ]);
     }
 
-    public function update(Request $request, Employee $employee)
+    public function update(Request $request, Currency $currency)
     {
-        $this->authorize('update', Employee::class);
-
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'dept' => 'required'
+            'code' => 'required',
+            'name' => 'required'
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $employee->update([
-            'name' => $request->name,
-            'dept' => $request->dept
+        $currency->update([
+            'code' => $request->code,
+            'name' => $request->name
         ]);
 
         return response()->json([
             'success' => true,
-            'data'    => $employee
+            'data'    => $currency
         ]);
     }
 
-    public function destroy(Employee $employee)
+    public function destroy(Currency $currency)
     {
-        $this->authorize('delete', Employee::class);
+        $currency->delete();
 
-        $employee->delete();
         return response()->json([
             'success' => true,
-            'data'    => $employee
+            'data'    => $currency
         ]);
     }
 }
