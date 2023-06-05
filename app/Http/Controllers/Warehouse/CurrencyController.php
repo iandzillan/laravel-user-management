@@ -12,8 +12,9 @@ class CurrencyController extends Controller
 {
     public function index(Request $request)
     {
-        $currencies = Currency::latest()->get();
+        $this->authorize('viewAny', Currency::class);
 
+        $currencies = Currency::latest()->get();
         if ($request->ajax()) {
             return DataTables::of($currencies)
                 ->addIndexColumn()
@@ -36,6 +37,8 @@ class CurrencyController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Currency::class);
+
         $validator = Validator::make($request->all(), [
             'code' => 'required',
             'name' => 'required'
@@ -58,6 +61,8 @@ class CurrencyController extends Controller
 
     public function show(Currency $currency)
     {
+        $this->authorize('update', Currency::class);
+
         return response()->json([
             'success' => true,
             'data'    => $currency
@@ -66,6 +71,8 @@ class CurrencyController extends Controller
 
     public function update(Request $request, Currency $currency)
     {
+        $this->authorize('update', Currency::class);
+
         $validator = Validator::make($request->all(), [
             'code' => 'required',
             'name' => 'required'
@@ -88,8 +95,9 @@ class CurrencyController extends Controller
 
     public function destroy(Currency $currency)
     {
-        $currency->delete();
+        $this->authorize('delete', Currency::class);
 
+        $currency->delete();
         return response()->json([
             'success' => true,
             'data'    => $currency

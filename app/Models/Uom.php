@@ -25,4 +25,9 @@ class Uom extends Model
     {
         return strtoupper($value);
     }
+
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
 }

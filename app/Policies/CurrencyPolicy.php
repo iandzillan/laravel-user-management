@@ -3,19 +3,20 @@
 namespace App\Policies;
 
 use Illuminate\Auth\Access\Response;
-use App\Models\Employee;
+use App\Models\Currency;
 use App\Models\User;
 
-class EmployeePolicy
+class CurrencyPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Get all permission from user.
      */
     public function permission(User $user)
     {
         $user_permission = [];
+
         foreach ($user->modules as $modul) {
-            foreach ($modul->menus->where('route_name', 'employees.index') as $menu) {
+            foreach ($modul->menus->where('route_name', 'currencies.index') as $menu) {
                 foreach ($menu->permissions as $permission) {
                     array_push($user_permission, $permission->name);
                 }
@@ -52,41 +53,23 @@ class EmployeePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Employee $employee)
+    public function update(User $user)
     {
-        if ($employee->user != null) {
-            if ($user->username == $employee->user->username) {
-                return in_array('update', $this->permission($user));
-            }
-            if ($user->username === 'superadmin') {
-                return in_array('update', $this->permission($user));
-            }
-        } else {
-            return in_array('update', $this->permission($user));
-        }
+        return in_array('update', $this->permission($user));
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Employee $employee)
+    public function delete(User $user)
     {
-        if ($employee->user != null) {
-            if ($user->username == $employee->user->username) {
-                return in_array('update', $this->permission($user));
-            }
-            if ($user->username === 'superadmin') {
-                return in_array('update', $this->permission($user));
-            }
-        } else {
-            return in_array('update', $this->permission($user));
-        }
+        return in_array('delete', $this->permission($user));
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user)
+    public function restore(User $user, Currency $currency)
     {
         //
     }
@@ -94,7 +77,7 @@ class EmployeePolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user)
+    public function forceDelete(User $user, Currency $currency)
     {
         //
     }

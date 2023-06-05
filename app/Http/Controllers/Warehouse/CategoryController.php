@@ -13,8 +13,9 @@ class CategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $categories = Category::latest()->get();
+        $this->authorize('viewAny', Category::class);
 
+        $categories = Category::latest()->get();
         if ($request->ajax()) {
             return DataTables::of($categories)
                 ->addIndexColumn()
@@ -37,6 +38,8 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Category::class);
+
         $validator = Validator::make($request->all(), [
             'code' => 'required|unique:categories|min:4|max:4|alpha_num',
             'name' => 'required'
@@ -59,6 +62,8 @@ class CategoryController extends Controller
 
     public function show(Category $category)
     {
+        $this->authorize('update', Category::class);
+
         return response()->json([
             'success' => true,
             'data'    => $category
@@ -67,6 +72,8 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category)
     {
+        $this->authorize('update', Category::class);
+
         $validator = Validator::make($request->all(), [
             'code' => ['required', 'min:4', 'max:4', 'alpha_num', Rule::unique('categories')->ignore($category->id)],
             'name' => 'required'
@@ -89,8 +96,9 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        $category->delete();
+        $this->authorize('delete', Category::class);
 
+        $category->delete();
         return response()->json([
             'success' => true,
             'data'    => $category

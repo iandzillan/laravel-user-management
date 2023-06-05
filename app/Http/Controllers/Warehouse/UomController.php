@@ -15,6 +15,8 @@ class UomController extends Controller
 {
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Uom::class);
+
         $uoms = Uom::latest()->get();
         if ($request->ajax()) {
             return DataTables::of($uoms)
@@ -38,6 +40,8 @@ class UomController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Uom::class);
+
         $validator = Validator::make($request->all(), [
             'code' => 'required|min:3|max:3|alpha_num|unique:uoms',
             'name' => 'required',
@@ -62,6 +66,8 @@ class UomController extends Controller
 
     public function show(Uom $uom)
     {
+        $this->authorize('update', Uom::class);
+
         return response()->json([
             'success' => true,
             'data'    => $uom
@@ -70,6 +76,8 @@ class UomController extends Controller
 
     public function update(Request $request, Uom $uom)
     {
+        $this->authorize('update', Uom::class);
+
         $validator = Validator::make($request->all(), [
             'code' => ['required', 'min:3', 'max:3', 'alpha_num', Rule::unique('uoms')->ignore($uom->id)],
             'name' => 'required',
@@ -94,8 +102,9 @@ class UomController extends Controller
 
     public function destroy(Uom $uom)
     {
-        $uom->delete();
+        $this->authorize('delete', Uom::class);
 
+        $uom->delete();
         return response()->json([
             'success' => true,
             'data'    => $uom

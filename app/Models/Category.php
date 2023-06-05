@@ -15,4 +15,9 @@ class Category extends Model
     {
         return ucwords($value);
     }
+
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
 }

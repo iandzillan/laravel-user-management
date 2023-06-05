@@ -44,13 +44,13 @@ class UserController extends Controller
                     $btn_edit   = '';
                     $btn_info   = '';
                     $btn_delete = '';
-                    if ($request->user()->can('update', User::class)) {
+                    if ($request->user()->can('update', $row)) {
                         $btn_edit = '<a class="btn btn-info btn-sm" data-id="' . $row->id . '" title="Edit" id="btn-edit"><i class="ti ti-edit"></i></a>';
                     }
-                    if ($request->user()->can('view', User::class)) {
+                    if ($request->user()->can('view', $row)) {
                         $btn_info = ' <a class="btn btn-success btn-sm" data-id="' . $row->id . '" title="Detail" id="btn-info"><i class="ti ti-info-circle"></i></a>';
                     }
-                    if ($request->user()->can('delete', User::class)) {
+                    if ($request->user()->can('delete', $row)) {
                         $btn_delete = ' <a class="btn btn-danger btn-sm" data-id="' . $row->id . '" title="Delete" id="btn-delete"><i class="ti ti-trash"></i></a>';
                     }
                     return $btn_edit . $btn_info . $btn_delete;
@@ -78,7 +78,7 @@ class UserController extends Controller
 
         $validator = Validator::make($request->all(), [
             'employee_id' => 'required',
-            'email'       => 'required|email:rfc,dns|unique:users',
+            'email'       => 'required|email|unique:users',
             'username'    => 'required|unique:users',
             'password'    => 'required|confirmed',
             'modul_id'    => 'sometimes',
@@ -112,7 +112,7 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        $this->authorize('view', User::class);
+        $this->authorize('view', $user);
 
         return response()->json([
             'success'  => true,
@@ -147,11 +147,11 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $this->authorize('update', User::class);
+        $this->authorize('update', $user);
 
         $validator = Validator::make($request->all(), [
             'employee_id' => 'required',
-            'email'      => ['required', 'email:rfc,dns', Rule::unique('users')->ignore($user->id)],
+            'email'      => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'username'   => ['required', Rule::unique('users')->ignore($user->id)],
             'password'   => 'sometimes|confirmed',
             'modul_id'   => 'sometimes'
@@ -170,11 +170,8 @@ class UserController extends Controller
         $user->username    = $request->username;
         $user->password    = $user->password;
         $user->save();
-
-        if ($request->modul_id) {
-            $modules = Modul::find($request->modul_id);
-            $user->modules()->sync($modules);
-        }
+        $modules           = Modul::find($request->modul_id);
+        $user->modules()->sync($modules);
 
         return response()->json([
             'success'  => true,
@@ -185,7 +182,7 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        $this->authorize('delete', User::class);
+        $this->authorize('delete', $user);
 
         $user->delete();
         return response()->json([

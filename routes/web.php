@@ -10,10 +10,14 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Warehouse\CategoryController;
 use App\Http\Controllers\Warehouse\UomController;
 use App\Http\Controllers\Warehouse\CurrencyController;
+use App\Http\Controllers\Warehouse\ItemController;
+use App\Models\Category;
+use App\Models\Currency;
 use App\Models\Employee;
 use App\Models\Menu;
 use App\Models\Modul;
 use App\Models\Permission;
+use App\Models\Uom;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -72,44 +76,53 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index')->can('viewAny', User::class);
         Route::get('/get-employees', [UserController::class, 'getEmployees'])->name('users.getEmployees')->can('create', User::class);
         Route::post('/store', [UserController::class, 'store'])->name('users.store')->can('create', User::class);
-        Route::get('/{user}/show', [UserController::class, 'show'])->name('users.show')->can('update', User::class);
-        Route::patch('/{user}', [UserController::class, 'update'])->name('users.update')->can('update', User::class);
-        Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy')->can('delete', User::class);
+        Route::get('/{user}/show', [UserController::class, 'show'])->name('users.show');
+        Route::patch('/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
     // employee
     Route::group(['prefix' => 'employees'], function () {
         Route::get('/', [EmployeeController::class, 'index'])->name('employees.index')->can('viewAny', Employee::class);
         Route::post('/store', [EmployeeController::class, 'store'])->name('employees.store')->can('create', Employee::class);
-        Route::get('/{employee}/show', [EmployeeController::class, 'show'])->name('employees.show')->can('update', Employee::class);
-        Route::patch('/{employee}', [EmployeeController::class, 'update'])->name('employees.update')->can('update', Employee::class);
-        Route::delete('/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy')->can('delete', Employee::class);
+        Route::get('/{employee}/show', [EmployeeController::class, 'show'])->name('employees.show');
+        Route::patch('/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
+        Route::delete('/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
     });
 
     // category
     Route::group(['prefix' => 'categories'], function () {
-        Route::get('/', [CategoryController::class, 'index'])->name('categories.index');
-        Route::post('/store', [CategoryController::class, 'store'])->name('categories.store');
-        Route::get('/{category}/show', [CategoryController::class, 'show'])->name('categories.show');
-        Route::patch('/{category}', [CategoryController::class, 'update'])->name('categories.update');
-        Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+        Route::get('/', [CategoryController::class, 'index'])->name('categories.index')->can('viewAny', Category::class);
+        Route::post('/store', [CategoryController::class, 'store'])->name('categories.store')->can('create', Category::class);
+        Route::get('/{category}/show', [CategoryController::class, 'show'])->name('categories.show')->can('update', Category::class);
+        Route::patch('/{category}', [CategoryController::class, 'update'])->name('categories.update')->can('update', Category::class);
+        Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy')->can('delete', Category::class);
     });
 
     // uom
     Route::group(['prefix' => 'uoms'], function () {
-        Route::get('/', [UomController::class, 'index'])->name('uoms.index');
-        Route::post('/store', [UomController::class, 'store'])->name('uoms.store');
-        Route::get('/{uom}/show', [UomController::class, 'show'])->name('uoms.show');
-        Route::patch('/{uom}', [UomController::class, 'update'])->name('uoms.update');
-        Route::delete('/{uom}', [UomController::class, 'destroy'])->name('uoms.destroy');
+        Route::get('/', [UomController::class, 'index'])->name('uoms.index')->can('viewAny', Uom::class);
+        Route::post('/store', [UomController::class, 'store'])->name('uoms.store')->can('create', Uom::class);
+        Route::get('/{uom}/show', [UomController::class, 'show'])->name('uoms.show')->can('update', Uom::class);
+        Route::patch('/{uom}', [UomController::class, 'update'])->name('uoms.update')->can('update', Uom::class);
+        Route::delete('/{uom}', [UomController::class, 'destroy'])->name('uoms.destroy')->can('delete', Uom::class);
     });
 
     // currency 
     Route::group(['prefix' => 'currencies'], function () {
-        Route::get('/', [CurrencyController::class, 'index'])->name('currencies.index');
-        Route::post('/store', [CurrencyController::class, 'store'])->name('currencies.store');
-        Route::get('/{currency}/show', [CurrencyController::class, 'show'])->name('currencies.show');
-        Route::patch('/{currency}', [CurrencyController::class, 'update'])->name('currencies.update');
-        Route::delete('/{currency}', [CurrencyController::class, 'destroy'])->name('currencies.destroy');
+        Route::get('/', [CurrencyController::class, 'index'])->name('currencies.index')->can('viewAny', Currency::class);
+        Route::post('/store', [CurrencyController::class, 'store'])->name('currencies.store')->can('create', Currency::class);
+        Route::get('/{currency}/show', [CurrencyController::class, 'show'])->name('currencies.show')->can('update', Currency::class);
+        Route::patch('/{currency}', [CurrencyController::class, 'update'])->name('currencies.update')->can('update', Currency::class);
+        Route::delete('/{currency}', [CurrencyController::class, 'destroy'])->name('currencies.destroy')->can('delete', Currency::class);
+    });
+
+    // item
+    Route::group(['prefix' => 'items'], function () {
+        Route::get('/', [ItemController::class, 'index'])->name('items.index');
+        Route::post('/store', [ItemController::class, 'store'])->name('items.store');
+        Route::get('/{item}/show', [ItemController::class, 'show'])->name('items.show');
+        Route::patch('/{item}', [ItemController::class, 'update'])->name('items.update');
+        Route::delete('/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
     });
 });

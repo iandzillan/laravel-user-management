@@ -37,9 +37,14 @@ class UserPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user)
+    public function view(User $user, User $model)
     {
-        return in_array('view', $this->permission($user));
+        if ($model->id === $user->id) {
+            return in_array('update', $this->permission($user));
+        }
+        if ($model->username != 'superadmin') {
+            return in_array('update', $this->permission($user));
+        }
     }
 
     /**
@@ -53,17 +58,27 @@ class UserPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user)
+    public function update(User $user, User $model)
     {
-        return in_array('update', $this->permission($user));
+        if ($model->id === $user->id) {
+            return in_array('update', $this->permission($user));
+        }
+        if ($model->username != 'superadmin') {
+            return in_array('update', $this->permission($user));
+        }
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user)
+    public function delete(User $user, User $model)
     {
-        return in_array('delete', $this->permission($user));
+        if ($model->id === $user->id) {
+            return in_array('update', $this->permission($user));
+        }
+        if ($model->username != 'superadmin') {
+            return in_array('update', $this->permission($user));
+        }
     }
 
     /**
