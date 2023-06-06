@@ -78,7 +78,7 @@ class UserController extends Controller
 
         $validator = Validator::make($request->all(), [
             'employee_id' => 'required',
-            'email'       => 'required|email|unique:users',
+            'email'       => 'required|email:rfc,dns|unique:users',
             'username'    => 'required|unique:users',
             'password'    => 'required|confirmed',
             'modul_id'    => 'sometimes',
@@ -151,7 +151,7 @@ class UserController extends Controller
 
         $validator = Validator::make($request->all(), [
             'employee_id' => 'required',
-            'email'      => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+            'email'      => ['required', 'email:rfc,dns', Rule::unique('users')->ignore($user->id)],
             'username'   => ['required', Rule::unique('users')->ignore($user->id)],
             'password'   => 'sometimes|confirmed',
             'modul_id'   => 'sometimes'

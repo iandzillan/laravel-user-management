@@ -120,6 +120,9 @@ Route::group(['middleware' => 'auth'], function () {
     // item
     Route::group(['prefix' => 'items'], function () {
         Route::get('/', [ItemController::class, 'index'])->name('items.index');
+        Route::get('/get-categories', [ItemController::class, 'getCategories'])->name('items.categories');
+        Route::get('/get-category/{category}', [ItemController::class, 'getCategory'])->name('items.category');
+        Route::get('/get-uoms', [ItemController::class, 'getUoms'])->name('items.uoms');
         Route::post('/store', [ItemController::class, 'store'])->name('items.store');
         Route::get('/{item}/show', [ItemController::class, 'show'])->name('items.show');
         Route::patch('/{item}', [ItemController::class, 'update'])->name('items.update');

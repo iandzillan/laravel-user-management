@@ -177,8 +177,8 @@
             // store user
             $('#form-user').on('submit', function(e){
                 e.preventDefault();
-                let textToast, typeJson, message, formData, url;
-                let btnValue = $('#store').val();
+                let textToast, typeJson, message, formData, url, btnValue;
+                btnValue = $('#store').val();
                 if (btnValue === 'store') {
                     textToast = 'Please wait, storing the data...';
                     typeJson  = 'post';
