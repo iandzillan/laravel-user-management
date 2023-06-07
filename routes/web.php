@@ -11,6 +11,7 @@ use App\Http\Controllers\Warehouse\CategoryController;
 use App\Http\Controllers\Warehouse\UomController;
 use App\Http\Controllers\Warehouse\CurrencyController;
 use App\Http\Controllers\Warehouse\ItemController;
+use App\Http\Controllers\Warehouse\PurchaseRequisitionController;
 use App\Models\Category;
 use App\Models\Currency;
 use App\Models\Employee;
@@ -127,5 +128,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/{item}/show', [ItemController::class, 'show'])->name('items.show');
         Route::patch('/{item}', [ItemController::class, 'update'])->name('items.update');
         Route::delete('/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
+    });
+
+    // Purchase request
+    Route::group(['prefix' => 'prs'], function () {
+        Route::get('/', [PurchaseRequisitionController::class, 'index'])->name('prs.index');
+        Route::get('/create', [PurchaseRequisitionController::class, 'create'])->name('prs.create');
     });
 });

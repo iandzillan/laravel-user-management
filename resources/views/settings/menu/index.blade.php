@@ -13,9 +13,7 @@
                         <input type="hidden" name="id" id="id">
                         <div class="mb-3 col-lg-6 col-md-12">
                             <label for="code" class="form-label">Code</label>
-                            <div class="input-group">
-                                <input type="text" name="code" id="code" class="form-control" placeholder="Example: T01">
-                            </div>
+                            <input type="text" name="code" id="code" class="form-control" placeholder="Example: T01">
                             <div class="invalid-feedback d-none" role="alert" id="alert-code"></div>
                         </div>
                         <div class="mb-3 col-lg-6 col-md-12">

@@ -21,6 +21,11 @@ class Item extends Model
         return $this->belongsTo(Uom::class);
     }
 
+    public function prs()
+    {
+        return $this->belongsToMany(PurchaseRequisition::class, 'pr_id');
+    }
+
     public function getCodeAttribute($value)
     {
         return strtoupper($value);

@@ -7,7 +7,9 @@
             <div class="header-title">
                 <h4 class="card-title">Item List</h4>
             </div>
-            <a href="javascript:void(0)" class="btn btn-primary" id="btn-create"><i class="ti ti-file-plus"></i> Add Item</a>
+            @can('create', App\Models\Item::class)
+                <a href="javascript:void(0)" class="btn btn-primary" id="btn-create"><i class="ti ti-file-plus"></i> Add Item</a>
+            @endcan
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -19,7 +21,6 @@
                             <th>Name</th>
                             <th>Category</th>
                             <th>Stock</th>
-                            <th>Safety Stock</th>
                             <th>Unit</th>
                             <th>Actions</th>
                         </tr>
@@ -29,8 +30,8 @@
         </div>
     </div>
 
-    {{-- modal --}}
-    <div class="modal fade" id="modal-item" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    {{-- modal form --}}
+    <div class="modal fade" id="modal-form" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -95,6 +96,73 @@
         </div>
     </div>
 
+    {{-- modal info --}}
+    @can('view', App\Models\Item::class)    
+        <div class="modal fade" id="modal-info" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Item's Detail</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <tr>
+                                    <th>Code</th>
+                                    <td>:</td>
+                                    <td id="item-code">--</td>
+                                </tr>
+                                <tr>
+                                    <th>Name</th>
+                                    <td>:</td>
+                                    <td id="item-name">--</td>
+                                </tr>
+                                <tr>
+                                    <th>Category</th>
+                                    <td>:</td>
+                                    <td id="item-category">--</td>
+                                </tr>
+                                <tr>
+                                    <th>Location</th>
+                                    <td>:</td>
+                                    <td id="item-location">--</td>
+                                </tr>
+                                <tr>
+                                    <th>Stock</th>
+                                    <td>:</td>
+                                    <td id="item-stock">--</td>
+                                </tr>
+                                <tr>
+                                    <th>Safety Stock</th>
+                                    <td>:</td>
+                                    <td id="item-safety_stock">--</td>
+                                </tr>
+                                <tr>
+                                    <th>Description</th>
+                                    <td>:</td>
+                                    <td id="item-desc">--</td>
+                                </tr>
+                                <tr>
+                                    <th>Status</th>
+                                    <td>:</td>
+                                    <td id="item-status">--</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-center">
+                                        <img id="item-qrcode" src="" alt="item-qrcode">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="close-info">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endcan
+
     <script>
         $(document).ready(function(){
             // define variable
@@ -112,7 +180,6 @@
                     {data: 'name', name: 'name'},
                     {data: 'category', name: 'category'},
                     {data: 'stock', name: 'stock'},
-                    {data: 'safety_stock', name: 'safety_stock'},
                     {data: 'uom', name: 'uom'},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false},
                 ]
@@ -161,7 +228,7 @@
                 $('select').removeClass('is-invalid');
                 $('textarea').removeClass('is-invalid');
                 $('#store').val('store');
-                $('#modal-item').modal('show');
+                $('#modal-form').modal('show');
             });
 
             // store item
@@ -209,7 +276,7 @@
                         $('input').removeClass('is-invalid');
                         $('select').removeClass('is-invalid');
                         $('textarea').removeClass('is-invalid');
-                        $('#modal-item').modal('hide');
+                        $('#modal-form').modal('hide');
                         table.draw();
                     }, error: function(error){
                         console.log(error.responseJSON.message);
@@ -272,7 +339,7 @@
                         $('#safety-stock').val(response.data.safety_stock);
                         $('#desc').val(response.data.desc);
                         $('#store').val('edit');
-                        $('#modal-item').modal('show');
+                        $('#modal-form').modal('show');
                     }
                 });
             });
@@ -281,26 +348,16 @@
             $('body').on('click', '#cancel', function(){
                 let btnValue;
                 btnValue = $('#store').val();
-                if (btnValue === 'store') {
+                if (btnValue === 'edit') {
                     swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    text: 'Cancel storing',
-                    showConfirmButton: false,
-                    timerProgressBar: true,
-                    timer: 2000
-                });
-                } else {
-                    swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    text: 'Cancel editing',
-                    showConfirmButton: false,
-                    timerProgressBar: true,
-                    timer: 2000
-                });
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        text: 'Cancel editing',
+                        showConfirmButton: false,
+                        timerProgressBar: true,
+                        timer: 2000
+                    });
                 }
             });
 
@@ -351,6 +408,25 @@
                             }
                         });
                     }
+                });
+            });
+
+            // btn info
+            $('body').on('click', '#btn-detail', function(){
+                let id, infoURL;
+                id      = $(this).data('id');
+                infoURL = "{{ route('items.show', ":id") }}";
+                infoURL = infoURL.replace(':id', id);
+
+                $.get(infoURL, function(response){
+                    $.each(response.data, function(i, item){
+                        $('#item-'+i).html(item);
+                        $('#item-'+i).attr('src', `{{ asset('storage/qr-code/${item}') }}`);
+                    });
+                    $('#item-category').html(response.category.name);
+                    $('#item-stock').append(' ' + response.uom.unit);
+                    $('#item-safety_stock').append(' ' + response.uom.unit);
+                    $('#modal-info').modal('show');
                 });
             });
         });

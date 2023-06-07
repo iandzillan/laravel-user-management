@@ -17,6 +17,8 @@ class ItemController extends Controller
 {
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Item::class);
+
         $items = Item::latest()->get();
         if ($request->ajax()) {
             return DataTables::of($items)
@@ -27,13 +29,19 @@ class ItemController extends Controller
                 ->addColumn('uom', function ($row) {
                     return $row->uom->unit;
                 })
-                ->addColumn('actions', function ($row) {
+                ->addColumn('actions', function ($row) use ($request) {
                     $btn_detail = '';
                     $btn_edit   = '';
                     $btn_delete = '';
-                    $btn_detail = '<a id="btn-detail" data-id="' . $row->id . '" class="btn btn-success btn-sm" title="Detail"><i class="ti ti-search"></i></a>';
-                    $btn_edit   = ' <a id="btn-edit" data-id="' . $row->id . '" class="btn btn-info btn-sm" title="Edit"><i class="ti ti-edit"></i></a>';
-                    $btn_delete = ' <a id="btn-delete" data-id="' . $row->id . '" class="btn btn-danger btn-sm" title="Delete"><i class="ti ti-trash"></i></a>';
+                    if ($request->user()->can('view', Item::class)) {
+                        $btn_detail = '<a id="btn-detail" data-id="' . $row->id . '" class="btn btn-success btn-sm" title="Detail"><i class="ti ti-search"></i></a>';
+                    }
+                    if ($request->user()->can('update', Item::class)) {
+                        $btn_edit   = ' <a id="btn-edit" data-id="' . $row->id . '" class="btn btn-info btn-sm" title="Edit"><i class="ti ti-edit"></i></a>';
+                    }
+                    if ($request->user()->can('delete', Item::class)) {
+                        $btn_delete = ' <a id="btn-delete" data-id="' . $row->id . '" class="btn btn-danger btn-sm" title="Delete"><i class="ti ti-trash"></i></a>';
+                    }
 
                     return $btn_detail . $btn_edit . $btn_delete;
                 })
@@ -45,25 +53,39 @@ class ItemController extends Controller
         ]);
     }
 
-    public function getCategories()
+    public function getCategories(Request $request)
     {
-        $categories = Category::all();
-        return response()->json($categories);
+        if ($request->user()->can('create', Item::class) || $request->user()->can('update', Item::class)) {
+            $categories = Category::all();
+            return response()->json($categories);
+        }
+
+        return abort(403);
     }
 
-    public function getCategory(Category $category)
+    public function getCategory(Request $request, Category $category)
     {
-        return response()->json($category);
+        if ($request->user()->can('create', Item::class) || $request->user()->can('update', Item::class)) {
+            return response()->json($category);
+        }
+
+        return abort(403);
     }
 
-    public function getUoms()
+    public function getUoms(Request $request)
     {
-        $uoms = Uom::all();
-        return response()->json($uoms);
+        if ($request->user()->can('create', Item::class) || $request->user()->can('update', Item::class)) {
+            $uoms = Uom::all();
+            return response()->json($uoms);
+        }
+
+        return abort(403);
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Item::class);
+
         $validator = Validator::make($request->all(), [
             'code'         => 'required|unique:items|min:4|max:4',
             'name'         => 'required',
@@ -112,15 +134,20 @@ class ItemController extends Controller
 
     public function show(Item $item)
     {
+        $this->authorize('update', Item::class);
+
         return response()->json([
             'success'  => true,
             'data'     => $item,
-            'category' => $item->category
+            'category' => $item->category,
+            'uom'      => $item->uom
         ]);
     }
 
     public function update(Request $request, Item $item)
     {
+        $this->authorize('update', Item::class);
+
         $validator = Validator::make($request->all(), [
             'code'         => ['required', 'min:4', 'max:4', 'alpha_num', Rule::unique('items')->ignore($item->id)],
             'name'         => 'required',
@@ -147,8 +174,17 @@ class ItemController extends Controller
         $item->safety_stock = $request->safety_stock;
         $item->desc         = $request->desc;
         $item->status       = $request->status;
-        $image_name         = 'qrcode-' . $item->code . '.svg';
-        Storage::move('public/qr-code/' . $item->qrcode, 'public/qr-code/' . $image_name);
+
+        if ($item->qrcode == null) {
+            $image          = QrCode::format('svg')->size(200)->generate($item->code);
+            $image_name     = 'qrcode-' . $item->code . '.svg';
+            $output_file    = 'public/qr-code/' . $image_name;
+            Storage::disk('local')->put($output_file, $image);
+        } else {
+            $image_name     = 'qrcode-' . $item->code . '.svg';
+            Storage::move('public/qr-code/' . $item->qrcode, 'public/qr-code/' . $image_name);
+        }
+
         $item->qrcode       = $image_name;
         $item->category()->associate($category);
         $item->uom()->associate($uom);
@@ -162,7 +198,10 @@ class ItemController extends Controller
 
     public function destroy(Item $item)
     {
+        $this->authorize('delete', Item::class);
+
         $item->delete();
+        Storage::delete('public/qr-code/' . $item->qrcode);
         return response()->json([
             'success' => true,
             'data'    => $item
