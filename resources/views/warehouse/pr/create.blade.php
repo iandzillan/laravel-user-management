@@ -48,6 +48,46 @@
                         </div>
                     </div>
                 </div>
+                <div class="table-responsive">
+                    <table class="table" style="width: 100%" id="table-pr-item">
+                        <thead>
+                            <tr>
+                                <th>Items</th>
+                                <th>Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="main-item">
+                                <td style="width: 70%">
+                                    <select name="item_id[]" id="item_id" class="form-select">
+                                        <option disabled selected> -- Choose -- </option>
+                                        @foreach ($items as $item)
+                                            <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td style="width: 25%">
+                                    <input type="number" name="qty" id="qty" class="form-control">
+                                </td>
+                                <td style="width: 5%">
+                                    <button type="button" id="delete-pr-item" class="btn btn-danger btn-sm">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row d-flex justify-content-between mb-3">
+                    <div class="col-9">
+                        <button type="button" id="add-item" class="btn btn-primary btn-sm">
+                            <i class="ti ti-plus"></i> Add Item 
+                        </button>
+                    </div>
+                    <div class="col-3 align-items-end">
+                        Sub Qty : ...
+                    </div>
+                </div>
 
                 <div class="row d-flex justify-content-start">
                     <div class="col">
@@ -58,4 +98,31 @@
             </form>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function(){
+            $('#add-item').on('click', function(){
+                $('#table-pr-item > tbody:last-child').append(`
+                    <tr>
+                        <td style="width: 70%">
+                            <select name="item_id[]" id="item_id" class="form-select">
+                                <option disabled selected> -- Choose -- </option>
+                                @foreach ($items as $item)
+                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                @endforeach
+                            </select>
+                        </td>
+                        <td style="width: 25%">
+                            <input type="number" name="qty" id="qty" class="form-control">
+                        </td>
+                        <td style="width: 5%">
+                            <button type="button" id="delete-pr-item" class="btn btn-danger btn-sm">
+                                <i class="ti ti-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+        });
+    </script>
 @endsection
